@@ -2,10 +2,8 @@ import { Link } from "react-router-dom";
 import "@/pages/Cart/Cart.css";
 import { useState, useEffect } from "react";
 
-// Cart storage key
 export const CART_STORAGE_KEY = "foodorder-cart-v2";
 
-// Cart Item Interface
 export interface CartItem {
   id: number;
   name: string;
@@ -15,8 +13,6 @@ export interface CartItem {
   image: string;
 }
 
-// Add To Cart Function
-// This function will be used later in Meals page
 export const addToCart = (
   newProduct: Omit<CartItem, "quantity">
 ) => {
@@ -51,10 +47,8 @@ export const addToCart = (
   );
 };
 
-// Cart Component
 const Cart = () => {
 
-  // Get saved cart or start with empty cart
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
@@ -65,7 +59,6 @@ const Cart = () => {
     }
   });
 
-  // Save cart whenever items change
   useEffect(() => {
     localStorage.setItem(
       CART_STORAGE_KEY,
@@ -73,7 +66,6 @@ const Cart = () => {
     );
   }, [cartItems]);
 
-  // Increase Quantity
   const increaseQuantity = (id: number) => {
     setCartItems((items) =>
       items.map((item) =>
@@ -84,7 +76,6 @@ const Cart = () => {
     );
   };
 
-  // Decrease Quantity
   const decreaseQuantity = (id: number) => {
     setCartItems((items) =>
       items
@@ -97,42 +88,34 @@ const Cart = () => {
     );
   };
 
-  // Remove Product
   const removeItem = (id: number) => {
     setCartItems((prevItems) =>
       prevItems.filter((item) => item.id !== id)
     );
   };
 
-  // Clear Cart
   const clearCart = () => {
     if (window.confirm("Are you sure you want to clear your cart?")) {
       setCartItems([]);
     }
   };
-
-  // Calculate Subtotal
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  // Delivery Fee
   const deliveryFee = cartItems.length > 0 ? 2.99 : 0;
 
-  // Total Items
   const totalItems = cartItems.reduce(
     (total, item) => total + item.quantity,
     0
   );
 
-  // Total Price
   const total = subtotal + deliveryFee;
 
   return (
     <div className="cart-page">
 
-      {/* Cart Header */}
       <div className="cart-header">
         <div>
           <span className="cart-subtitle">YOUR ORDER</span>
@@ -147,12 +130,11 @@ const Cart = () => {
         <div className="cart-icon">🛒</div>
       </div>
 
-      {/* Empty Cart */}
       {cartItems.length === 0 ? (
 
         <div className="empty-cart">
 
-          <div>🛍️</div>
+          <div>🍽️</div>
 
           <h2>Your cart is empty!</h2>
 
@@ -173,7 +155,6 @@ const Cart = () => {
 
         <div className="cart-layout">
 
-          {/* Cart Products */}
           <section className="cart-products">
 
             <div className="section-title">
@@ -185,8 +166,6 @@ const Cart = () => {
               </span>
 
             </div>
-
-            {/* Products List */}
             {cartItems.map((item) => (
 
               <div className="cart-product" key={item.id}>
@@ -208,8 +187,6 @@ const Cart = () => {
                   </span>
 
                 </div>
-
-                {/* Quantity Controls */}
                 <div className="quantity-control">
 
                   <button
@@ -228,7 +205,6 @@ const Cart = () => {
                     +
                   </button>
 
-                  {/* Remove Button */}
                   <button
                     className="remove-item-btn"
                     onClick={() => removeItem(item.id)}
@@ -238,7 +214,6 @@ const Cart = () => {
 
                 </div>
 
-                {/* Item Total */}
                 <div className="item-total">
                   ${(item.price * item.quantity).toFixed(2)}
                 </div>
@@ -247,7 +222,6 @@ const Cart = () => {
 
             ))}
 
-            {/* Continue Shopping */}
             <Link
               to="/Meals"
               className="continue-shopping"
@@ -255,7 +229,6 @@ const Cart = () => {
               ← Continue Shopping
             </Link>
 
-            {/* Clear Cart */}
             <button
               className="clear-cart-btn"
               onClick={clearCart}
@@ -263,9 +236,9 @@ const Cart = () => {
               🗑 Clear Cart
             </button>
 
-          </section>
 
-          {/* Order Summary */}
+            </section>
+
           <aside className="order-summary">
 
             <h2>Order Summary</h2>

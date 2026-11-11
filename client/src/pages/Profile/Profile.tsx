@@ -283,7 +283,7 @@ const Profile = () => {
           <div className="statistics">
 
             <div className="stat-card">
-              <span>🛍️</span>
+              <span>🥡</span>
               <div>
                 <h3>12</h3>
                 <p>Total Orders</p>

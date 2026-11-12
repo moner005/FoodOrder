@@ -74,7 +74,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">WELCOME TO FOODORDER</p>
+          <p className="eyebrow">WELCOME TO SWIFTBITE</p>
 
           <h1>
             Delicious food,
@@ -89,49 +89,6 @@ export default function HomePage() {
             delivered right to your door.
           </p>
 
-          <form
-            action={routes.meals}
-            method="get"
-            className="hero-search"
-            style={{
-              display: 'flex',
-              gap: '10px',
-              marginTop: '25px',
-              maxWidth: '470px',
-            }}
-          >
-            <input
-              type="search"
-              name="search"
-              placeholder="Search for meals or restaurants..."
-              aria-label="Search meals or restaurants"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                padding: '15px',
-                border: '1px solid #eeeeee',
-                borderRadius: '10px',
-                fontSize: '14px',
-                outline: 'none',
-              }}
-            />
-
-            <button
-              type="submit"
-              style={{
-                padding: '0 22px',
-                background: '#f97316',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Search
-            </button>
-          </form>
-
           <div className="hero-actions">
             <Link className="button primary" to={routes.meals}>
               Explore Meals
@@ -143,19 +100,20 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Hero Real Food Image */}
+        {/* Hero Video */}
         <div className="hero-art">
-          <img
-            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=85"
-            alt="Delicious juicy beef burger with fresh ingredients"
-            style={{
-              width: '100%',
-              height: '360px',
-              objectFit: 'cover',
-              borderRadius: '25px',
-              display: 'block',
-            }}
-          />
+          <video
+            className="hero-video"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            poster="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=85"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
       </section>
 

@@ -19,11 +19,11 @@ export function Header() {
 
   return (
     <header className="site-header">
-      <Link className="brand" to={routes.home}>
-        <span className="brand-mark">f</span>
+      <Link className="brand" to={routes.home} aria-label="SwiftBite Home">
+        <span className="brand-mark">S</span>
         <span>
-          FoodOrder
-          <small>Food delivered with love</small>
+          SwiftBite
+          <small>Fresh food, fast delivery</small>
         </span>
       </Link>
 

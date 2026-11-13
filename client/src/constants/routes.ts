@@ -1,1 +1,10 @@
-export const routes = { home: '/', meals: '/meals', cart: '/cart', checkout: '/checkout', orders: '/orders' } as const
+export const routes = {
+  home: '/',
+  meals: '/meals',
+  restaurants: '/restaurants',
+  cart: '/cart',
+  checkout: '/checkout',
+  orders: '/orders',
+  profile: '/profile',
+  contact: '/contact',
+} as const

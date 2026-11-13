@@ -1,8 +1,76 @@
+
+import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { routes } from '@/constants/routes'
 import { useCartStore } from '@/stores/cartStore'
-const links = [['Home', routes.home], ['Menu', routes.meals], ['Orders', routes.orders]] as const
+
+const links = [
+  ['Home', routes.home],
+  ['Cart', routes.cart],
+  ['All Restaurants', routes.restaurants],
+  ['My Profile', routes.profile],
+  ['Check Order', routes.orders],
+  ['Contact', routes.contact],
+] as const
+
 export function Header() {
-  const count = useCartStore((state) => state.items.reduce((sum, item) => sum + item.quantity, 0))
-  return <header className="site-header"><Link className="brand" to={routes.home}><span className="brand-mark">f</span><span>FoodOrder<small>Neighborhood kitchen</small></span></Link><nav aria-label="Main navigation">{links.map(([label, to]) => <NavLink key={to} to={to} end={to === routes.home} className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>{label}</NavLink>)}</nav><Link className="cart-link" to={routes.cart}>Your cart <span aria-label={`${count} items in cart`}>{count}</span></Link></header>
+  const count = useCartStore((state) =>
+    state.items.reduce((sum, item) => sum + item.quantity, 0),
+  )
+
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem('swiftbite-theme')
+    return savedTheme === 'dark' ? 'dark' : 'light'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('swiftbite-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((current) => (current === 'light' ? 'dark' : 'light'))
+  }
+
+  return (
+    <header className="site-header">
+      <Link className="brand" to={routes.home} aria-label="SwiftBite Home">
+        <span className="brand-mark">S</span>
+        <span>
+          SwiftBite
+          <small>Fresh food, fast delivery</small>
+        </span>
+      </Link>
+
+      <nav aria-label="Main navigation">
+        {links.map(([label, to]) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === routes.home}
+            className={({ isActive }) =>
+              isActive ? 'nav-link active' : 'nav-link'
+            }
+          >
+            {label}
+            {to === routes.cart && (
+              <span className="nav-cart-count">{count}</span>
+            )}
+          </NavLink>
+        ))}
+
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === 'light' ? 'Enable dark mode' : 'Enable light mode'}
+          title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+        >
+          <span className="theme-icon">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </span>
+        </button>
+      </nav>
+    </header>
+  )
 }

@@ -7,4 +7,5 @@ export const routes = {
   orders: '/orders',
   profile: '/profile',
   contact: '/contact',
+  dashboard: '/dashboard',
 } as const

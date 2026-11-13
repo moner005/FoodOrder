@@ -10,6 +10,7 @@ const links = [
   ['My Profile', routes.profile],
   ['Check Order', routes.orders],
   ['Contact', routes.contact],
+  ['Dashboard', routes.dashboard],
 ] as const
 
 export function Header() {

@@ -1,3 +1,5 @@
+export const CATEGORIES: MenuItem['category'][] = ['starters', 'mains', 'drinks', 'desserts']
+
 export interface MenuItem {
   id: string;
   restaurantId: string;

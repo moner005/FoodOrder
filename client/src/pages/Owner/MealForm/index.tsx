@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import type { MenuItem } from '../../../types/menu'
-import { addMeal, getMealById, updateMeal } from '../../../services/menuStorage'
+import { MENU_CATEGORIES } from '@/types/menu'
+import type { MenuItem } from '@/types/menu'
+import { addMeal, getMealById, updateMeal } from '@/services/menuStorage'
+import { CURRENT_RESTAURANT_ID } from '@/constants/restaurant'
 import { routes } from '@/constants/routes'
-import { CATEGORIES } from '@/types/menu'
 
 type MealFormValues = {
   name: string
@@ -60,12 +61,9 @@ function validate(values: MealFormValues): MealFormErrors {
   return errors
 }
 
-const inputClass =
-  'w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20'
-const errorClass = 'text-sm text-red-600'
+const inputClass = 'input'
+const errorClass = 'form-error'
 
-// TEMP: replace with the logged-in owner's restaurantId once the team adds it to the user
-const CURRENT_RESTAURANT_ID = 'restaurant-1'
 export default function MealForm() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -79,9 +77,9 @@ export default function MealForm() {
 
   if (id !== undefined && !existingMeal) {
     return (
-      <section className="mx-auto max-w-xl p-6">
-        <h1 className="mb-3 text-2xl font-bold">Meal not found</h1>
-        <Link className="font-semibold text-emerald-700 hover:underline" to={routes.ownerHome}>
+      <section className="meal-form-page">
+        <h1 className="meal-form-title">Meal not found</h1>
+        <Link className="text-link" to={routes.ownerHome}>
           Back to your menu
         </Link>
       </section>
@@ -129,14 +127,14 @@ export default function MealForm() {
   }
 
   return (
-    <section className="mx-auto max-w-xl p-6" aria-labelledby="meal-form-title">
-      <h1 id="meal-form-title" className="mb-6 text-2xl font-bold">
+    <section className="meal-form-page" aria-labelledby="meal-form-title">
+      <h1 id="meal-form-title" className="meal-form-title">
         {id === undefined ? 'Add meal' : `Edit ${existingMeal?.name}`}
       </h1>
 
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-        <div className="space-y-1">
-          <label className="block text-sm font-semibold" htmlFor="meal-name">Meal name</label>
+      <form className="meal-form" onSubmit={handleSubmit} noValidate>
+        <div className="form-field">
+          <label className="form-label" htmlFor="meal-name">Meal name</label>
           <input
             className={inputClass}
             id="meal-name"
@@ -150,8 +148,8 @@ export default function MealForm() {
           {errors.name ? <p className={errorClass} id="meal-name-error" role="alert">{errors.name}</p> : null}
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-semibold" htmlFor="meal-description">Description</label>
+        <div className="form-field">
+          <label className="form-label" htmlFor="meal-description">Description</label>
           <textarea
             className={inputClass}
             id="meal-description"
@@ -162,8 +160,8 @@ export default function MealForm() {
           />
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-semibold" htmlFor="meal-price">Price</label>
+        <div className="form-field">
+          <label className="form-label" htmlFor="meal-price">Price</label>
           <input
             className={inputClass}
             id="meal-price"
@@ -179,8 +177,8 @@ export default function MealForm() {
           {errors.price ? <p className={errorClass} id="meal-price-error" role="alert">{errors.price}</p> : null}
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-semibold" htmlFor="meal-image">Image URL</label>
+        <div className="form-field">
+          <label className="form-label" htmlFor="meal-image">Image URL</label>
           <input
             className={inputClass}
             id="meal-image"
@@ -192,15 +190,15 @@ export default function MealForm() {
           />
           {values.imageUrl.trim() ? (
             <img
-              className="mt-2 h-32 w-full rounded-lg object-cover"
+              className="form-preview"
               src={values.imageUrl}
               alt="Meal preview"
             />
           ) : null}
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-semibold" htmlFor="meal-category">Category</label>
+        <div className="form-field">
+          <label className="form-label" htmlFor="meal-category">Category</label>
           <select
             className={inputClass}
             id="meal-category"
@@ -209,7 +207,7 @@ export default function MealForm() {
             onChange={handleChange}
             aria-invalid={Boolean(errors.category)}
           >
-            {CATEGORIES.map((category) => (
+            {MENU_CATEGORIES.map((category) => (
               <option key={category} value={category}>
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </option>
@@ -218,9 +216,8 @@ export default function MealForm() {
           {errors.category ? <p className={errorClass} role="alert">{errors.category}</p> : null}
         </div>
 
-        <label className="flex items-center gap-3 text-sm">
+        <label className="checkbox-field">
           <input
-            className="h-4 w-4"
             type="checkbox"
             checked={values.isAvailable}
             onChange={handleAvailabilityChange}
@@ -230,16 +227,16 @@ export default function MealForm() {
 
         {formError ? <p className={errorClass} role="alert">{formError}</p> : null}
 
-        <div className="flex gap-3 pt-2">
+        <div className="form-actions">
           <button
-            className="rounded-lg border border-slate-300 px-5 py-2.5 font-semibold hover:bg-slate-100"
+            className="button secondary"
             type="button"
             onClick={() => navigate(routes.ownerHome)}
           >
             Cancel
           </button>
           <button
-            className="rounded-lg bg-emerald-700 px-5 py-2.5 font-semibold text-white hover:bg-emerald-800"
+            className="button primary"
             type="submit"
           >
             Save meal

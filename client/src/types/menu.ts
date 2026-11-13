@@ -1,12 +1,14 @@
-export const CATEGORIES: MenuItem['category'][] = ['starters', 'mains', 'drinks', 'desserts']
+export const MENU_CATEGORIES = ['starters', 'mains', 'drinks', 'desserts'] as const
+
+export type MenuCategory = (typeof MENU_CATEGORIES)[number]
 
 export interface MenuItem {
-  id: string;
-  restaurantId: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  category: 'starters' | 'mains' | 'drinks' | 'desserts';
-  isAvailable: boolean;
+  id: string
+  restaurantId: string
+  name: string
+  description: string
+  price: number
+  imageUrl: string
+  category: MenuCategory
+  isAvailable: boolean
 }

@@ -1,134 +1,177 @@
-import { useNavigate } from "react-router-dom";
-import MealCard from "../../../components/menu/MealCard";
-import type { MenuItem } from "../../../types/menu";
-import { useState } from "react";
-import { routes } from "@/constants/routes";
-import { getMenu, toggleMealAvailability, deleteMeal } from "../../../services/menuStorage";
-
-// const mockMenuItems: MenuItem[] = [
-//   {
-//     id: '1',
-//     restaurantId: '1',
-//     name: 'Spaghetti Bolognese',
-//     description: 'Classic Italian pasta dish with rich meat sauce.',
-//     price: 12.99,
-//     imageUrl: 'https://example.com/images/spaghetti-bolognese.jpg',
-//     category: 'mains',
-//     isAvailable: true,
-//   },
-//   {
-//     id: '2',
-//     restaurantId: '1',
-//     name: 'Caesar Salad',
-//     description: 'Crisp romaine lettuce with Caesar dressing and croutons.',
-//     price: 8.99,
-//     imageUrl: 'https://example.com/images/caesar-salad.jpg',
-//     category: 'starters',
-//     isAvailable: true,
-//   },
-//   {
-//     id: '3',
-//     restaurantId: '1',
-//     name: 'Chocolate Lava Cake',
-//     description: 'Warm chocolate cake with a gooey center.',
-//     price: 6.99,
-//     imageUrl: 'https://example.com/images/chocolate-lava-cake.jpg',
-//     category: 'desserts',
-//     isAvailable: false,
-//   },
-//   {
-//     id: '4',
-//     restaurantId: '1',
-//     name: 'Margarita Pizza',
-//     description: 'Classic pizza with tomato sauce, mozzarella, and basil.',
-//     price: 10.99,
-//     imageUrl: 'https://example.com/images/margarita-pizza.jpg',
-//     category: 'mains',
-//     isAvailable: true,
-//   },
-//   {
-//     id: '5',
-//     restaurantId: '1',
-//     name: 'Lemonade',
-//     description: 'Refreshing homemade lemonade.',
-//     price: 3.99,
-//     imageUrl: 'https://example.com/images/lemonade.jpg',
-//     category: 'drinks',
-//     isAvailable: true,
-//   },
-// ];
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import MealCard from '@/components/menu/MealCard'
+import { MENU_CATEGORIES } from '@/types/menu'
+import type { MenuItem } from '@/types/menu'
+import { deleteMeal, getMenu, toggleMealAvailability } from '@/services/menuStorage'
+import { CURRENT_RESTAURANT, CURRENT_RESTAURANT_ID,
+} from '@/constants/restaurant'
+import { routes } from '@/constants/routes'
 
 export default function OwnerHomePage() {
-    const [meals, setMeals] = useState<MenuItem[]>(() => getMenu());
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [selectedCategory, setSelectedCategory] = useState<string>('all');
-    const [mealToDelete, setMealToDelete] = useState<MenuItem | null>(null);
-    const navigate = useNavigate()
+  const navigate = useNavigate()
+  const [meals, setMeals] = useState<MenuItem[]>(() => getMenu())
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [mealToDelete, setMealToDelete] = useState<MenuItem | null>(null)
 
-    function handleToggleAvailability(id: string) {
-        setMeals(toggleMealAvailability(id));
-    } 
+  const ownerMeals = meals.filter((meal) => meal.restaurantId === CURRENT_RESTAURANT_ID)
 
-    function handleEditMeal(id: string) {
-        navigate(routes.ownerMenuEdit(id));
+  const filteredMeals = ownerMeals.filter((meal) => {
+    const matchesCategory = selectedCategory === 'all' || meal.category === selectedCategory
+    const matchesSearch = meal.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+    return matchesCategory && matchesSearch
+  })
+
+  const hasActiveFilters = searchTerm.trim() !== '' || selectedCategory !== 'all'
+
+  function handleToggleAvailability(id: string) {
+    setMeals(toggleMealAvailability(id))
+  }
+
+  function handleEdit(id: string) {
+    navigate(routes.ownerMenuEdit(id))
+  }
+
+  function handleDeleteRequest(id: string) {
+    setMealToDelete(ownerMeals.find((meal) => meal.id === id) ?? null)
+  }
+
+  function handleDeleteConfirm() {
+    if (mealToDelete) {
+      setMeals(deleteMeal(mealToDelete.id))
     }
+    setMealToDelete(null)
+  }
 
-    function handleDeleteMeal(id: string) {
-      setMeals(deleteMeal(id))
-    }
-
-    const filteredMeals = meals.filter((meal) => {
-        const matchesSearchTerm = meal.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || meal.category === selectedCategory;
-        return matchesSearchTerm && matchesCategory;
-    });
+  function clearFilters() {
+    setSearchTerm('')
+    setSelectedCategory('all')
+  }
 
   return (
-    <div>
-      <h1>Owner Home Page</h1>
-      <button onClick={() => navigate(routes.ownerMenuNew)}>Add New Meal</button>
-      {meals.length === 0 && <p>No meals available. Please add a new meal.</p>}
-      <input
-        type="text"
-        placeholder="Search meals..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
-      >
-        <option value="all">All Categories</option>
-        <option value="starters">Starters</option>
-        <option value="mains">Mains</option>
-        <option value="desserts">Desserts</option>
-        <option value="drinks">Drinks</option>
-      </select>
-      <div className="menu-grid">
-        {filteredMeals.length === 0 ? (
-          <p>No meals found.</p>
-        ) : (
-          filteredMeals.map((item) => (
-            <MealCard
-              key={item.id}
-              menuItem={item}
-              onToggleAvailability={handleToggleAvailability}
-              onEdit={handleEditMeal}
-              onDelete={handleDeleteMeal}
+    <section className="owner-page">
+      <div className="owner-restaurant-info">
+        <div className="owner-restaurant-image">
+          {CURRENT_RESTAURANT.imageUrl ? (
+            <img
+              src={CURRENT_RESTAURANT.imageUrl}
+              alt={`${CURRENT_RESTAURANT.name} restaurant`}
             />
-          ))
-        )}
+          ) : (
+            <span>Restaurant photo</span>
+          )}
+        </div>
+        <div>
+          <p className="eyebrow">Restaurant owner</p>
+          <h1 className="owner-restaurant-name">{CURRENT_RESTAURANT.name}</h1>
+          <p>{CURRENT_RESTAURANT.description}</p>
+        </div>
       </div>
-      {mealToDelete && (
-        <div className="modal">
-          <p>Are you sure you want to delete {mealToDelete.name}?</p>
-          <button onClick={() => {
-            setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealToDelete.id));
-            setMealToDelete(null);
-          }}>Yes</button>
-          <button onClick={() => setMealToDelete(null)}>No</button>
+      <div className="owner-header">
+        <h1 className="owner-title">Your menu</h1>
+        <button
+          className="button primary"
+          type="button"
+          onClick={() => navigate(routes.ownerMenuNew)}
+        >
+          Add new meal
+        </button>
+      </div>
+
+      <div className="owner-toolbar">
+        <input
+          className="input owner-search"
+          type="text"
+          placeholder="Search meals..."
+          aria-label="Search meals"
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+        />
+        <select
+          className="input"
+          aria-label="Filter by category"
+          value={selectedCategory}
+          onChange={(event) => setSelectedCategory(event.target.value)}
+        >
+          <option value="all">All categories</option>
+          {MENU_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </option>
+          ))}
+        </select>
+        {hasActiveFilters ? (
+          <button
+            className="button secondary"
+            type="button"
+            onClick={clearFilters}
+          >
+            Clear filters
+          </button>
+        ) : null}
+      </div>
+
+      {ownerMeals.length === 0 ? (
+        <div className="owner-empty">
+          <p>You haven&apos;t added any meals yet.</p>
+          <button
+            className="button primary"
+            type="button"
+            onClick={() => navigate(routes.ownerMenuNew)}
+          >
+            Add your first meal
+          </button>
+        </div>
+      ) : filteredMeals.length === 0 ? (
+        <p className="owner-empty">
+          No meals match your search.
+        </p>
+      ) : (
+        <div className="owner-grid">
+          {filteredMeals.map((meal) => (
+            <MealCard
+              key={meal.id}
+              menuItem={meal}
+              onToggleAvailability={handleToggleAvailability}
+              onEdit={handleEdit}
+              onDelete={handleDeleteRequest}
+            />
+          ))}
         </div>
       )}
-    </div>
-  );
+
+      {mealToDelete ? (
+        <div className="modal-backdrop">
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-title"
+          >
+            <h2 id="delete-title" className="modal-title">
+              Delete {mealToDelete.name}?
+            </h2>
+            <p className="modal-text">This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => setMealToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="button danger"
+                type="button"
+                onClick={handleDeleteConfirm}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  )
 }

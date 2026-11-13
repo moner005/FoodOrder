@@ -896,4 +896,199 @@ a {
   object-fit: cover;
   border-radius: 25px;
 }
+.add-to-cart-button {
+  cursor: pointer;
+}
+.add-to-cart-button {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.add-to-cart-button:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+/* Dark Mode Theme */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #171411;
+  --color-surface: #24201c;
+  --color-surface-warm: #2b2520;
+  --color-surface-muted: #302820;
+  --color-surface-accent: #382b22;
+  --color-cream: #3b2d20;
+
+  --color-primary: #e18a62;
+  --color-primary-hover: #c96c48;
+  --color-primary-deep: #d57954;
+  --color-primary-deeper: #b85a3d;
+  --color-accent: #e69a75;
+  --color-accent-soft: #6b4432;
+
+  --color-text: #f5eee6;
+  --color-text-muted: #c4b7aa;
+  --color-text-soft: #a99b8e;
+  --color-label: #e4d5c8;
+  --color-placeholder: #998a7c;
+
+  --color-border: #453a31;
+  --color-border-input: #59483b;
+  --color-border-warm: #6a4c39;
+  --color-focus: #e0a17a;
+
+  --color-notice-bg: #352b1d;
+
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-hover);
+  --primary-light: var(--color-surface-accent);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --border: var(--color-border);
+
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 19px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: rotate(15deg);
+}
+
+.theme-toggle:active {
+  transform: scale(0.9);
+}
+
+/* Dark Mode Toggle Layout */
+.theme-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 10px;
+}
+
+/* Toggle Button */
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 19px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle:active {
+  transform: scale(0.85);
+}
+
+/* Icon Animation */
+.theme-icon {
+  display: inline-block;
+  animation: themeIconAppear 0.4s ease;
+}
+
+@keyframes themeIconAppear {
+  from {
+    transform: rotate(-120deg) scale(0.3);
+    opacity: 0;
+  }
+
+  to {
+    transform: rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Click Counter */
+.theme-click-count {
+  min-width: 23px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 50px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+/* Meal Cart Actions */
+.meal-cart-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.add-to-cart-button {
+  flex: 1;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.add-to-cart-button:active {
+  transform: scale(0.94);
+  box-shadow: none;
+}
+
+/* Meal Quantity Badge */
+.meal-quantity {
+  min-width: 75px;
+  padding: 8px 10px;
+  border-radius: 50px;
+  background: var(--color-surface-accent);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border-warm);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+.add-to-cart-button {
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+
+.add-to-cart-button:active {
+  transform: translateY(3px) scale(0.97);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+
 

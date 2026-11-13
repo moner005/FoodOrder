@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { routes } from '@/constants/routes'
 import { useCartStore } from '@/stores/cartStore'
@@ -16,6 +17,20 @@ export function Header() {
   const count = useCartStore((state) =>
     state.items.reduce((sum, item) => sum + item.quantity, 0),
   )
+
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem('swiftbite-theme')
+    return savedTheme === 'dark' ? 'dark' : 'light'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('swiftbite-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((current) => (current === 'light' ? 'dark' : 'light'))
+  }
 
   return (
     <header className="site-header">
@@ -43,6 +58,18 @@ export function Header() {
             )}
           </NavLink>
         ))}
+
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={toggleTheme}
+          aria-label={theme === 'light' ? 'Enable dark mode' : 'Enable light mode'}
+          title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+        >
+          <span className="theme-icon">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </span>
+        </button>
       </nav>
     </header>
   )

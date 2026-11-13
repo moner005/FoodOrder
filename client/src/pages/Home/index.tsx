@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom'
 import { routes } from '@/constants/routes'
+import { useCartStore } from '@/stores/cartStore'
 
 const categories = [
   { name: 'Burgers', icon: '🍔' },
@@ -40,6 +41,7 @@ const restaurants = [
 
 const meals = [
   {
+    id: 'classic-beef-burger',
     name: 'Classic Beef Burger',
     description: 'Juicy beef, cheese and fresh vegetables',
     price: '$8.99',
@@ -49,6 +51,7 @@ const meals = [
     badge: 'Popular',
   },
   {
+    id: 'italian-margherita',
     name: 'Italian Margherita',
     description: 'Fresh tomatoes, mozzarella and basil',
     price: '$10.50',
@@ -58,6 +61,7 @@ const meals = [
     badge: 'Special Offer',
   },
   {
+    id: 'crispy-fried-chicken',
     name: 'Crispy Fried Chicken',
     description: 'Golden crispy chicken with special sauce',
     price: '$7.50',
@@ -69,6 +73,9 @@ const meals = [
 ]
 
 export default function HomePage() {
+  const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
+
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -201,38 +208,53 @@ export default function HomePage() {
         </div>
 
         <div className="meals-grid">
-          {meals.map((meal) => (
-            <Link
-              to={routes.meals}
-              className="meal-card"
-              key={meal.name}
-            >
-              <div className="meal-image">
-                <img
-                  src={meal.image}
-                  alt={meal.name}
-                  loading="lazy"
-                  style={{
-                    width: '100%',
-                    height: '190px',
-                    objectFit: 'cover',
-                  }}
-                />
+          {meals.map((meal) => {
+            const quantity =
+              cartItems.find((item) => item.mealId === meal.id)?.quantity ?? 0
 
-                <span className="meal-badge">{meal.badge}</span>
-              </div>
+            return (
+              <article className="meal-card" key={meal.id}>
+                <div className="meal-image">
+                  <img
+                    src={meal.image}
+                    alt={meal.name}
+                    loading="lazy"
+                    style={{
+                      width: '100%',
+                      height: '190px',
+                      objectFit: 'cover',
+                    }}
+                  />
 
-              <div className="meal-info">
-                <h3>{meal.name}</h3>
-                <p>{meal.description}</p>
-
-                <div className="meal-bottom">
-                  <strong>{meal.price}</strong>
-                  <span>⭐ {meal.rating}</span>
+                  <span className="meal-badge">{meal.badge}</span>
                 </div>
-              </div>
-            </Link>
-          ))}
+
+                <div className="meal-info">
+                  <h3>{meal.name}</h3>
+                  <p>{meal.description}</p>
+
+                  <div className="meal-bottom">
+                    <strong>{meal.price}</strong>
+                    <span>⭐ {meal.rating}</span>
+                  </div>
+
+                  <div className="meal-cart-actions">
+                    <button
+                      type="button"
+                      className="button primary add-to-cart-button"
+                      onClick={() => addToCart(meal.id)}
+                    >
+                      Add to Cart
+                    </button>
+
+                    <span className="meal-quantity">
+                      {quantity} in cart
+                    </span>
+                  </div>
+                </div>
+              </article>
+            )
+          })}
         </div>
       </section>
     </div>

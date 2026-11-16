@@ -8,6 +8,7 @@ const Header = ({ cartCount = 0 }) => {
   return (
     <header className="swift-header">
       <NavLink to="/" className="swift-logo">
+      
         <svg className="logo-icon" viewBox="0 0 55 45" fill="none">
           <path d="M12 27C12 17 19 9 28 9C37 9 44 17 44 27" fill="#9b3f27" />
 

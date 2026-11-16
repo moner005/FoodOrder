@@ -7,9 +7,7 @@
   font-family: var(--font-body);
 }
 
-/* =========================
-   HERO SECTION
-========================= */
+
 
 .customer-home .customer-hero {
   min-height: 570px;
@@ -22,7 +20,7 @@
   overflow: hidden;
 }
 
-/* Background circles */
+
 
 .customer-home .hero-decoration {
   position: absolute;
@@ -54,7 +52,7 @@
   left: 35%;
 }
 
-/* Hero content */
+
 
 .customer-home .hero-content {
   position: relative;
@@ -96,7 +94,7 @@
   margin-bottom: 28px;
 }
 
-/* Buttons */
+
 
 .customer-home .hero-buttons {
   display: flex;
@@ -140,7 +138,6 @@
   transform: translateY(-4px);
 }
 
-/* Hero stats */
 
 .customer-home .hero-small-info {
   display: flex;
@@ -166,9 +163,6 @@
   color: var(--color-text-muted);
 }
 
-/* =========================
-   EXPLODING BURGER
-========================= */
 
 .customer-home .hero-visual {
   position: relative;
@@ -213,7 +207,7 @@
   will-change: transform;
 }
 
-/* Top bread */
+
 
 .customer-home .top-bun {
   width: 220px;
@@ -222,7 +216,6 @@
   animation-name: topBunFly;
 }
 
-/* Lettuce */
 
 .customer-home .lettuce {
   width: 220px;
@@ -231,8 +224,6 @@
   animation-name: lettuceFly;
 }
 
-/* Tomato */
-
 .customer-home .tomato {
   width: 190px;
   top: 175px;
@@ -240,17 +231,12 @@
   animation-name: tomatoFly;
 }
 
-/* Cheese */
-
 .customer-home .cheese {
   width: 190px;
   top: 225px;
   z-index: 3;
   animation-name: cheeseFly;
 }
-
-/* Patty */
-
 .customer-home .patty {
   width: 210px;
   top: 275px;
@@ -258,7 +244,6 @@
   animation-name: pattyFly;
 }
 
-/* Bottom bread */
 
 .customer-home .bottom-bun {
   width: 210px;
@@ -267,7 +252,6 @@
   animation-name: bottomBunFly;
 }
 
-/* Burger animations */
 
 @keyframes topBunFly {
   0%, 100% {
@@ -363,9 +347,6 @@
   }
 }
 
-/* =========================
-   FEATURES BAR
-========================= */
 
 .customer-home .features-bar {
   position: relative;
@@ -408,10 +389,6 @@
   color: var(--color-text-muted);
   margin: 0;
 }
-
-/* =========================
-   GENERAL SECTIONS
-========================= */
 
 .customer-home .home-section {
   padding: 35px 7% 65px;
@@ -549,10 +526,6 @@
   background: var(--color-primary-hover);
 }
 
-/* =========================
-   POPULAR MEALS
-========================= */
-
 .customer-home .meals-section {
   background: var(--color-surface-muted);
 }
@@ -630,9 +603,6 @@
   transform: rotate(90deg);
 }
 
-/* =========================
-   GENERAL ANIMATIONS
-========================= */
 
 @keyframes heroTextEntrance {
   from {
@@ -646,9 +616,6 @@
   }
 }
 
-/* =========================
-   RESPONSIVE - TABLET
-========================= */
 
 @media (max-width: 1000px) {
 .customer-home .customer-hero {
@@ -688,9 +655,6 @@
   }
 }
 
-/* =========================
-   RESPONSIVE - MOBILE
-========================= */
 
 @media (max-width: 700px) {
 
@@ -764,10 +728,6 @@
     width: 35px;
   }
 }
-
-/* =========================
-   REDUCED MOTION
-========================= */
 
 @media (prefers-reduced-motion: reduce) {
 

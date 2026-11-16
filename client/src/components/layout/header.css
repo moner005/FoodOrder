@@ -1,0 +1,264 @@
+
+.swift-header {
+  width: 100%;
+  min-height: 76px;
+  padding: 0 6%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #fbf8f2;
+  border-bottom: 1px solid #eadfd2;
+
+  font-family: inherit;
+
+  position: relative;
+  z-index: 1000;
+}
+
+
+
+.swift-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  text-decoration: none;
+  color: #4a241b;
+
+  font-family: Georgia, serif;
+  font-size: 27px;
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.logo-icon {
+  width: 43px;
+  height: 43px;
+}
+
+
+
+.swift-nav {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.swift-nav a {
+  position: relative;
+
+  color: #45342d;
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  padding: 10px 0;
+
+  transition: 0.3s ease;
+}
+
+.swift-nav a:hover {
+  color: #9b3f27;
+}
+
+
+
+.swift-nav a.active {
+  color: #9b3f27;
+  font-weight: 700;
+}
+
+.swift-nav a.active::after {
+  content: "";
+
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: #9b3f27;
+  border-radius: 5px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+
+.cart-btn {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  color: #49271e;
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.cart-btn:hover {
+  color: #9b3f27;
+  transform: translateY(-2px);
+}
+
+.cart-count {
+  position: absolute;
+  top: -7px;
+  right: -8px;
+
+  width: 17px;
+  height: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #9b3f27;
+  color: white;
+
+  font-size: 10px;
+  font-weight: bold;
+
+  border-radius: 50%;
+}
+
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 9px 16px;
+
+  background: #9b3f27;
+  color: white;
+
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+
+  border-radius: 30px;
+
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #7f3220;
+  transform: translateY(-2px);
+}
+
+.mobile-menu-btn {
+  display: none;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.mobile-menu-btn span {
+  display: block;
+
+  width: 23px;
+  height: 2px;
+
+  margin: 5px 0;
+
+  background: #9b3f27;
+  border-radius: 5px;
+}
+
+@media (max-width: 900px) {
+
+  .swift-header {
+    padding: 0 4%;
+  }
+
+  .swift-nav {
+    gap: 15px;
+  }
+
+  .swift-nav a {
+    font-size: 12px;
+  }
+
+  .header-actions {
+    gap: 14px;
+  }
+
+  .swift-logo {
+    font-size: 23px;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .swift-header {
+    min-height: 70px;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+    order: 3;
+  }
+
+  .swift-nav {
+    display: none;
+
+    position: absolute;
+    top: 70px;
+    left: 0;
+
+    width: 100%;
+
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    padding: 20px;
+
+    background: #fbf8f2;
+    border-bottom: 1px solid #eadfd2;
+
+    box-shadow: 0 8px 15px rgba(70, 35, 20, 0.08);
+  }
+
+  .swift-nav.open {
+    display: flex;
+  }
+
+  .swift-nav a {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .swift-nav a.active::after {
+    width: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .header-actions {
+    margin-left: auto;
+    margin-right: 18px;
+  }
+
+  .login-btn {
+    padding: 8px 11px;
+    font-size: 10px;
+  }
+
+}

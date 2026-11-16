@@ -109,10 +109,6 @@ function CustomerHome() {
             <Link to="/restaurants" className="hero-primary-btn">
               Explore Restaurants <span>→</span>
             </Link>
-
-            {/* <Link to="/meals" className="hero-secondary-btn">
-              View Menu <span>▶️</span>
-            </Link> */}
           </div>
 
           <div className="hero-small-info">
@@ -134,8 +130,7 @@ function CustomerHome() {
 
         </div>
 
-        {/* EXPLODING BURGER */}
-        <div className="hero-visual">
+          <div className="hero-visual">
 
           <div className="burger-background-circle"></div>
 
@@ -181,7 +176,7 @@ function CustomerHome() {
 
       </section>
 
-      {/* FEATURES */}
+  
       <section className="features-bar">
 
         {features.map((feature, index) => (
@@ -201,7 +196,7 @@ function CustomerHome() {
 
       </section>
 
-      {/* POPULAR RESTAURANTS */}
+  
       <section className="home-section restaurants-section" id="restaurants">
 
         <div className="home-section-heading">
@@ -256,7 +251,7 @@ function CustomerHome() {
         </div>
       </section>
 
-      {/* POPULAR MEALS */}
+  
       <section className="home-section meals-section" id="meals">
 
         <div className="home-section-heading">

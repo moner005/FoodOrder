@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "@/layouts/MainLayout";
+import { AuthLayout } from "@/layouts/AuthLayout";
 import HomePage from "@/pages/Home";
 import RestaurantsPage from "@/pages/Restaurants/Restaurants";
 import MealsPage from "@/pages/Meals";
@@ -11,7 +12,8 @@ import OrderDetailsPage from "@/pages/Orders/OrderDetails";
 import ProfilePage from "@/pages/Profile/Profile";
 import DashboardPage from "@/pages/Dashboard";
 import NotFoundPage from "@/pages/NotFound";
-
+import LoginPage from "@/pages/Login";
+import RegisterPage from "@/pages/Register";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -29,6 +31,13 @@ export const router = createBrowserRouter([
       { path: "profile", element: <ProfilePage /> },
       { path: "dashboard", element: <DashboardPage /> },
       { path: "*", element: <NotFoundPage /> },
+    ],
+  },
+  {
+    element: <AuthLayout />,
+    children: [
+      { path: "login", element: <LoginPage /> },
+      { path: "register", element: <RegisterPage /> },
     ],
   },
 ]);

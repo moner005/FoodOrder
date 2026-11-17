@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
-import { MainLayout } from "@/layouts/MainLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { MainLayout } from "@/layouts/MainLayout";
 import HomePage from "@/pages/Home";
 import RestaurantsPage from "@/pages/Restaurants/Restaurants";
 import MealsPage from "@/pages/Meals";
@@ -14,6 +14,10 @@ import DashboardPage from "@/pages/Dashboard";
 import NotFoundPage from "@/pages/NotFound";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
+import OwnerHomePage from "@/pages/Owner/OwnerHomPage";
+import MealForm from "@/pages/Owner/MealForm";
+import { routes } from "@/constants/routes";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -38,6 +42,14 @@ export const router = createBrowserRouter([
     children: [
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <RegisterPage /> },
+    ],
+  },
+  {
+    element: <MainLayout />,
+    children: [
+      { path: routes.ownerHome, element: <OwnerHomePage /> },
+      { path: routes.ownerMenuNew, element: <MealForm /> },
+      { path: routes.ownerMenuEdit(":id"), element: <MealForm /> },
     ],
   },
 ]);

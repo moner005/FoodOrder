@@ -1,0 +1,39 @@
+﻿.page { min-width: 0; }
+
+/* Reuse Home's hero surface and typography, with a form-sized split. */
+.page .composition { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.composition .details { display: flex; flex-direction: column; padding: clamp(2rem, 4vw, 3.5rem); min-width: 0; }
+.details > p:last-of-type { margin: 0; }
+.signature { display: flex; align-items: center; gap: .7rem; padding-top: 2rem; margin-top: auto; color: #70695e; font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: .9rem; }
+.signature > span:first-child { flex-shrink: 0; }
+
+.formCard { min-width: 0; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid #eee8dd; border-radius: 0 1.3rem 1.3rem 0; background: #fff; }
+.description { margin: .65rem 0 0; color: #797267; font-size: .8rem; line-height: 1.55; }
+.form { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.field { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.fullWidth { grid-column: 1 / -1; }
+.field label { color: #53463b; font-size: .82rem; font-weight: 700; }
+.field input, .field textarea { width: 100%; min-width: 0; min-height: 2.75rem; padding: .7rem .85rem; border: 1px solid #e6dacb; border-radius: .6rem; background: #fffdf9; color: inherit; font: inherit; font-size: .9rem; line-height: 1.5; transition: border-color .15s ease, box-shadow .15s ease; }
+.field textarea { resize: vertical; min-height: 8rem; }
+.field input:hover, .field textarea:hover { border-color: #dfc4a7; }
+.field input:focus, .field textarea:focus { border-color: #c28155; box-shadow: 0 0 0 3px rgba(194, 129, 85, .18); }
+.field [aria-invalid='true'] { border-color: #c0392b; }
+.error { margin: 0; color: #b23a2a; font-size: .75rem; line-height: 1.5; }
+.hint { margin: 0; color: #746d62; font-size: .75rem; line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .85rem; padding-top: .25rem; }
+
+@media (max-width: 900px) {
+  .page .composition { grid-template-columns: 1fr; }
+  .composition .details { display: flex; }
+  .signature { display: none; }
+  .formCard { border-radius: 0 0 1.3rem 1.3rem; }
+}
+@media (max-width: 640px) {
+  .composition .details { display: flex; padding: 2rem 1.5rem; }
+  .form { grid-template-columns: 1fr; }
+  .actions { align-items: stretch; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field input, .field textarea { transition: none; }
+}
+.actions .submitButton:disabled { opacity: .55; cursor: not-allowed; }

@@ -7,7 +7,7 @@ const SESSION_KEY = 'session';
 
 interface CartStore {
   items: CartLine[];
-  load: () => void;
+  load: (userId?: string | null) => void;
   addItem: (item: CartLine) => boolean;
   increaseQuantity: (mealId: string) => void;
   decreaseQuantity: (mealId: string) => void;
@@ -81,118 +81,78 @@ function saveCart(userId: string, items: CartLine[]) {
   );
 }
 
-export const useCartStore = create<CartStore>((set, get) => ({
-  items: [],
+export const useCartStore = create<CartStore>((set) => {
+  let accountId = getCurrentUserId();
 
-  load: () => {
-    const userId = getCurrentUserId();
-
-    // Guests never receive a persisted cart.
-    if (!userId) {
-      set({ items: [] });
-      return;
-    }
-
-    set({ items: readCart(userId) });
-  },
-
-  addItem: (newItem) => {
-    const userId = getCurrentUserId();
-
-    // Block adding meals without authentication.
-    if (!userId) {
+  // Only an explicit sign-in changes the cart account used by this tab.
+  function updateCart(change: (current: CartLine[]) => CartLine[]): boolean {
+    const userId = accountId;
+    if (!userId || getCurrentUserId() !== userId) {
       set({ items: [] });
       return false;
     }
 
-    const current = get().items;
+    try {
+      const current = readCart(userId, true);
+      const items = change(current);
+      if (items !== current) {
+        if (items.length) saveCart(userId, items);
+        else localStorage.removeItem(getCartKey(userId));
+      }
+      set({ items });
+      return items !== current;
+    } catch {
+      return false;
+    }
+  }
 
-    const existing = current.find(
-      (item) => item.mealId === newItem.mealId,
-    );
-    if (existing && existing.quantity >= 99) return false;
+  return {
+    items: [],
+    load: (userId = accountId) => {
+      accountId = userId;
+      set({ items: userId && getCurrentUserId() === userId ? readCart(userId) : [] });
+    },
+    addItem: (newItem) => updateCart((current) => {
+      const existing = current.find((item) => item.mealId === newItem.mealId);
+      if (!existing) return [...current, newItem];
+      if (existing.quantity >= 99) return current;
+      return current.map((item) =>
+        item.mealId === newItem.mealId ? { ...item, quantity: item.quantity + 1 } : item,
+      );
+    }),
+    increaseQuantity: (mealId) => {
+      updateCart((current) => current.map((item) =>
+        item.mealId === mealId ? { ...item, quantity: Math.min(99, item.quantity + 1) } : item,
+      ));
+    },
+    decreaseQuantity: (mealId) => {
+      updateCart((current) => current
+        .map((item) => item.mealId === mealId ? { ...item, quantity: item.quantity - 1 } : item)
+        .filter((item) => item.quantity > 0));
+    },
+    removeItem: (mealId) => {
+      updateCart((current) => current.filter((item) => item.mealId !== mealId));
+    },
+    clear: () => { updateCart(() => []); },
 
-    const updated = existing
-      ? current.map((item) =>
-          item.mealId === newItem.mealId
-          ? { ...item, quantity: Math.min(99, item.quantity + 1) }
-            : item,
-        )
-      : [...current, { ...newItem }];
-
-    saveCart(userId, updated);
-    set({ items: updated });
-
-    return true;
-  },
-
-  increaseQuantity: (mealId) => {
-    const userId = getCurrentUserId();
-    if (!userId) return;
-
-    const updated = get().items.map((item) =>
-      item.mealId === mealId
-        ? { ...item, quantity: item.quantity + 1 }
-        : item,
-    );
-
-    saveCart(userId, updated);
-    set({ items: updated });
-  },
-
-  decreaseQuantity: (mealId) => {
-    const userId = getCurrentUserId();
-    if (!userId) return;
-
-    const updated = get().items
-      .map((item) =>
-        item.mealId === mealId
-          ? { ...item, quantity: item.quantity - 1 }
-          : item,
-      )
-      .filter((item) => item.quantity > 0);
-
-    saveCart(userId, updated);
-    set({ items: updated });
-  },
-
-  removeItem: (mealId) => {
-    const userId = getCurrentUserId();
-    if (!userId) return;
-
-    const updated = get().items.filter(
-      (item) => item.mealId !== mealId,
-    );
-
-    saveCart(userId, updated);
-    set({ items: updated });
-  },
-
-  clear: () => {
-    const userId = getCurrentUserId();
-
-    if (userId) {
+    clearIfUnchanged: (userId, expected) => {
+      if (accountId !== userId || getCurrentUserId() !== userId) return false;
+      const current = readCart(userId, true);
+      const signature = (items: CartLine[]) => JSON.stringify(items
+        .map(({ mealId, quantity, note }) => ({ mealId, quantity, note }))
+        .sort((a, b) => a.mealId.localeCompare(b.mealId)));
+      if (signature(current) !== signature(expected)) {
+        set({ items: current });
+        return false;
+      }
       localStorage.removeItem(getCartKey(userId));
-    }
+      set({ items: [] });
+      return true;
+    },
 
-    set({ items: [] });
-  },
-
-  clearIfUnchanged: (userId, expected) => {
-    if (getCurrentUserId() !== userId) return false;
-    const current = readCart(userId, true);
-    const signature = (items: CartLine[]) => JSON.stringify(items.map(({ mealId, quantity, note }) => ({ mealId, quantity, note })).sort((a, b) => a.mealId.localeCompare(b.mealId)));
-    if (signature(current) !== signature(expected)) {
-      set({ items: current });
-      return false;
-    }
-    localStorage.removeItem(getCartKey(userId));
-    set({ items: [] });
-    return true;
-  },
-
-  // Clear in-memory items on logout without deleting that user's saved cart.
-  reset: () => {
-    set({ items: [] });
-  },
-}));
+    reset: () => {
+      accountId = null;
+      set({ items: [] });
+    },
+  };
+});

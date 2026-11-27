@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     saveSession(user, accessToken);
 
     // Load only this user's cart after login.
-    useCartStore.getState().load();
+    useCartStore.getState().load(user.id);
 
     set({ user });
   },

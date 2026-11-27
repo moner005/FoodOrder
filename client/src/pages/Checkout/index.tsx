@@ -177,7 +177,7 @@ export default function CheckoutPage() {
       {feedback && <p className="sb-error" role="alert">{feedback}</p>}
       {feedback.includes("Refresh the current menu") && <button className="sb-button sb-secondary" type="button" onClick={() => setCatalogVersion((value) => value + 1)}>Refresh current menu</button>}
       <button className="sb-button sb-primary" type="submit" disabled={submitting || Boolean(pending) || loadingCatalog || Boolean(catalogError) || Boolean(quote.issues.length)}>{submitting ? "Placing order…" : "Place order"}</button>
-      <p className="sb-muted">No payment details are collected by this preview.</p>
+      <p className="sb-muted">Online payment is unavailable.</p>
     </form><aside className="sb-summary"><p className="sb-eyebrow">{count} ITEMS · {quote.groups.length} RESTAURANTS</p><h2>Order summary</h2>{quote.groups.map((group) => <section className="sb-summary-group" key={group.restaurant.id}><h3>{group.restaurant.name}</h3>{group.lines.map(({ line, meal }) => <div className="sb-total-row" key={line.mealId}><span>{meal.name} × {line.quantity}</span><strong>{formatMinor(amountToMinor(meal.price) * line.quantity)}</strong></div>)}<div className="sb-total-row"><span>Food subtotal</span><strong>{formatMinor(group.subtotalMinor)}</strong></div><div className="sb-total-row"><span>Delivery fee</span><strong>{formatMinor(group.feeMinor)}</strong></div></section>)}<div className="sb-total-row sb-total"><span>Total</span><strong>{formatMinor(quote.totalMinor)}</strong></div>{quote.areaRequired && <p className="sb-muted">Shared delivery area: {quote.commonAreas.join(", ") || "unavailable"}</p>}</aside></div>
   </div>;
 }

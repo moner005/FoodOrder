@@ -26,14 +26,6 @@
 .sb-secondary { color: #594a3d; border-color: #eadfd0; background: #fffaf4; }
 .sb-text-link { color: #963f29; font-size: .84rem; font-weight: 750; }
 .sb-text-button { border: 0; padding: .3rem; color: #963f29; background: transparent; font: 700 .8rem Inter, system-ui, sans-serif; cursor: pointer; }
-.sb-demo-note { margin: .5rem 0 1.6rem; padding: .65rem .85rem; border-left: 3px solid #c39349; color: #695d48; background: #fbf5e9; font-size: .78rem; line-height: 1.5; }
-.sb-global-note { margin: 0; padding: .48rem clamp(1rem, 5vw, 5rem); border: 0; border-bottom: 1px solid #eddfcb; text-align: center; }
-.sb-hero { display: grid; grid-template-columns: 1fr 1.02fr; min-height: 420px; overflow: hidden; border: 1px solid #eee5d8; border-radius: 1.15rem; background: #f2e8d9; }
-.sb-hero-copy { align-self: center; padding: clamp(1.8rem, 5vw, 4rem); }
-.sb-hero-copy h1 { font-size: clamp(2.7rem, 5vw, 4.2rem); }
-.sb-hero-copy h1 em { color: #963f29; font-weight: 400; }
-.sb-hero-copy > p:not(.sb-eyebrow) { max-width: 30rem; color: #70695e; font-size: .95rem; }
-.sb-hero-image { min-height: 350px; background: #e3c8aa url('/swiftbite-hero.webp') center/cover no-repeat; }
 .sb-section { margin-top: 3.2rem; }
 .sb-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin-bottom: 1.15rem; }
 .sb-section-heading h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2rem); }
@@ -136,8 +128,6 @@
 @media (max-width: 620px) {
   .sb-page-heading, .sb-section-heading { align-items: flex-start; flex-direction: column; gap: .8rem; }
   .sb-search { width: 100%; }
-  .sb-hero { grid-template-columns: 1fr; }
-  .sb-hero-image { min-height: 15rem; }
   .sb-restaurant-grid, .sb-meal-grid { grid-template-columns: 1fr; }
   .sb-venue-hero, .sb-dish-detail { grid-template-columns: 1fr; }
   .sb-venue-hero > img { max-height: 12rem; }

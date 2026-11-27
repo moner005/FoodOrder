@@ -63,7 +63,7 @@ const venues = [
   },
   {
     id: 6, slug: 'cedar-kitchen', name: 'Cedar Kitchen', cuisine: 'Local comfort food',
-    description: 'A fictional restaurant waiting for platform approval.',
+    description: 'Seasonal comfort food and fresh bowls in Willow Quarter.',
     address: '12 Cedar Lane, Willow Quarter',
     deliveryFee: '2.00', minimumSubtotal: '10.00', deliveryAreas: ['Willow Quarter'], status: 'PENDING',
     meals: [['Cedar Garden Bowl', 'Seasonal greens and grains.', '12.50', salad, true]],
@@ -76,9 +76,9 @@ try {
   await prisma.$transaction(async (tx) => {
     if (await tx.user.findUnique({ where: { id: makeId(101) }, select: { id: true } })) return;
     for (const account of [
-      { id: 101, role: 'ADMIN', email: 'admin@example.test', name: 'Preview Admin' },
-      { id: 102, role: 'RESTAURANT_OWNER', email: 'owner@example.test', name: 'Preview Owner' },
-      { id: 103, role: 'CUSTOMER', email: 'customer@example.test', name: 'Preview Customer',
+      { id: 101, role: 'ADMIN', email: 'admin@example.test', name: 'SwiftBite Admin' },
+      { id: 102, role: 'RESTAURANT_OWNER', email: 'owner@example.test', name: 'Salford & Co Owner' },
+      { id: 103, role: 'CUSTOMER', email: 'customer@example.test', name: 'SwiftBite Customer',
         address: '12 Sample Street', phone: '2025550104' },
     ]) {
       const { id, ...data } = account;

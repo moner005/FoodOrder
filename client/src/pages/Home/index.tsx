@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getRestaurants } from "@/services/marketplace";
 import type { Restaurant } from "@/types/marketplace";
+import topBun from "@/assets/burger/top-bun.png";
+import lettuce from "@/assets/burger/lettuce.png";
+import tomato from "@/assets/burger/tomato.png";
+import cheese from "@/assets/burger/cheese.png";
+import patty from "@/assets/burger/patty.png";
+import bottomBun from "@/assets/burger/bottom-bun.png";
+import "./home.css";
 import "./marketplace.css";
 
 const FALLBACK = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&auto=format&fit=crop";
@@ -17,20 +24,38 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="sb-page sb-home">
-      <section className="sb-hero">
-        <div className="sb-hero-copy">
-          <p className="sb-eyebrow">GOOD FOOD, CLOSE TO HOME</p>
-          <h1>A good meal<br /><em>brings us together.</em></h1>
-          <p>Explore neighborhood kitchens, see what is being served, and build one order from more than one restaurant.</p>
-          <div className="sb-actions">
-            <Link className="sb-button sb-primary" to="/restaurants">Browse restaurants <span aria-hidden="true">→</span></Link>
-            <Link className="sb-text-link" to="/meals">Explore all meals</Link>
+    <>
+      <div className="customer-home">
+        <section className="customer-hero" aria-labelledby="home-hero-title">
+          <div className="hero-decoration circle-one" aria-hidden="true" />
+          <div className="hero-decoration circle-two" aria-hidden="true" />
+          <div className="hero-decoration circle-three" aria-hidden="true" />
+
+          <div className="hero-content">
+            <span className="hero-tag">🍴 Delicious Food, Delivered Fast</span>
+            <h1 id="home-hero-title">Good Food.<br /><span>Great Mood!</span></h1>
+            <p>Order your favorite meals from the best restaurants and enjoy fast delivery at your doorstep.</p>
+            <div className="hero-buttons">
+              <Link to="/restaurants" className="hero-primary-btn">
+                Explore Restaurants <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="sb-hero-image" role="img" aria-label="A table set with freshly prepared food" />
-      </section>
-      <section className="sb-section">
+
+          <div className="hero-visual" role="img" aria-label="An animated burger with layers of lettuce, tomato, cheese, and a patty">
+            <div className="burger-background-circle" />
+            <div className="exploding-burger">
+              <img src={topBun} alt="" className="burger-part top-bun" />
+              <img src={lettuce} alt="" className="burger-part lettuce" />
+              <img src={tomato} alt="" className="burger-part tomato" />
+              <img src={cheese} alt="" className="burger-part cheese" />
+              <img src={patty} alt="" className="burger-part patty" />
+              <img src={bottomBun} alt="" className="burger-part bottom-bun" />
+            </div>
+          </div>
+        </section>
+      </div>
+      <section className="sb-page sb-section">
         <div className="sb-section-heading">
           <div><p className="sb-eyebrow">A PLACE TO START</p><h2>Restaurants to explore</h2></div>
           <Link className="sb-text-link" to="/restaurants">See all restaurants →</Link>
@@ -46,6 +71,6 @@ export default function HomePage() {
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }

@@ -515,9 +515,9 @@ export default function MealForm() {
 
           {values.imageUrl.trim() && (
             <img
-              className="form-preview"
+              className="form-image"
               src={values.imageUrl}
-              alt="Meal preview"
+              alt="Selected meal image"
               onError={(event) => {
                 event.currentTarget.style.display = 'none';
               }}

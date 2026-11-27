@@ -40,7 +40,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
 
-  await app.listen(port);
+  await app.listen(port, process.env.HOST ?? '127.0.0.1');
 
   console.log(`FoodOrder API running on port ${port}`);
   console.log(`Swagger: http://localhost:${port}/api/docs`);

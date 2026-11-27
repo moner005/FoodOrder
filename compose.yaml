@@ -1,0 +1,22 @@
+name: foodorder-integrated
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: foodorder_integrated
+      POSTGRES_USER: foodorder
+      POSTGRES_PASSWORD: ${FOODORDER_DB_PASSWORD:?Set FOODORDER_DB_PASSWORD in the root .env file}
+    ports:
+      - "127.0.0.1:${FOODORDER_DB_PORT:-55434}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "foodorder", "-d", "foodorder_integrated"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

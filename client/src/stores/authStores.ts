@@ -6,6 +6,7 @@ import {
   clearSession,
   getSession,
   saveSession,
+  subscribeToSessionChanges,
 } from '@/services/authStorage';
 
 import { useCartStore } from '@/stores/cartStore';
@@ -55,3 +56,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ user: null });
   },
 }));
+
+if (typeof window !== "undefined") {
+  const unsubscribe = subscribeToSessionChanges((user) => {
+    useCartStore.getState().load(user?.id ?? null);
+    useAuthStore.setState({ user });
+  });
+  import.meta.hot?.dispose(unsubscribe);
+}

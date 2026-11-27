@@ -26,3 +26,14 @@ export function clearSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(TOKEN_KEY);
 }
+
+export function subscribeToSessionChanges(onChange: (user: SessionUser | null) => void) {
+  function onStorage(event: StorageEvent) {
+    if (event.storageArea !== localStorage) return;
+    if (event.key !== null && event.key !== SESSION_KEY && event.key !== TOKEN_KEY) return;
+    onChange(getAccessToken() ? getSession() : null);
+  }
+
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}

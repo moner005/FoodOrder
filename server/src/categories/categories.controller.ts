@@ -31,6 +31,13 @@ export class CategoriesController {
     return this.categoriesService.findByRestaurant(restaurantId);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('manage/restaurant/:restaurantId')
+  findManageByRestaurant(@Param('restaurantId') restaurantId: string, @Request() req: { user: { id: string; role: string } }) {
+    return this.categoriesService.findManageByRestaurant(restaurantId, req.user.id, req.user.role);
+  }
+
   // Protected: Create category
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))

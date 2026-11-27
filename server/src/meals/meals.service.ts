@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { CreateMealDto } from './dto/create-meal.dto.js';
 import { UpdateMealDto } from './dto/update-meal.dto.js';
 
@@ -67,7 +68,7 @@ export class MealsService {
       where: { id: restaurantId },
     });
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.status !== 'ACTIVE') {
       throw new NotFoundException('Restaurant not found');
     }
 
@@ -87,6 +88,13 @@ export class MealsService {
     });
   }
 
+  async findManageByRestaurant(restaurantId: string, userId: string, userRole: string) {
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+    await this.checkRestaurantAccess(userId, userRole, restaurantId);
+    return this.prisma.meal.findMany({ where: { restaurantId }, include: { category: true }, orderBy: { createdAt: 'desc' } });
+  }
+
   // عرض وجبة واحدة
   async findOne(id: string) {
     const meal = await this.prisma.meal.findUnique({
@@ -103,10 +111,17 @@ export class MealsService {
       },
     });
 
-    if (!meal) {
+    if (!meal || meal.restaurant.status !== 'ACTIVE') {
       throw new NotFoundException('Meal not found');
     }
 
+    return meal;
+  }
+
+  async findManageOne(id: string, userId: string, userRole: string) {
+    const meal = await this.prisma.meal.findUnique({ where: { id }, include: { category: true, restaurant: { select: { id: true, name: true, status: true, isOpen: true } } } });
+    if (!meal) throw new NotFoundException('Meal not found');
+    await this.checkRestaurantAccess(userId, userRole, meal.restaurantId);
     return meal;
   }
 
@@ -190,15 +205,22 @@ export class MealsService {
       }
     }
 
-    return this.prisma.meal.update({
-      where: { id },
-      data: {
-        ...dto,
-      },
-      include: {
-        category: true,
-      },
-    });
+    const data: Prisma.MealUncheckedUpdateManyInput = {};
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.description !== undefined) data.description = dto.description;
+    if (dto.price !== undefined) data.price = dto.price;
+    if (dto.image !== undefined) data.image = dto.image;
+    if (dto.isAvailable !== undefined) data.isAvailable = dto.isAvailable;
+    if (dto.categoryId !== undefined) data.categoryId = dto.categoryId;
+    if (dto.expectedUpdatedAt !== undefined) {
+      const expected = new Date(dto.expectedUpdatedAt);
+      if (Number.isNaN(expected.getTime())) throw new BadRequestException('A valid meal revision is required');
+      data.updatedAt = new Date(Math.max(Date.now(), expected.getTime() + 1));
+      const changed = await this.prisma.meal.updateMany({ where: { id, updatedAt: expected }, data });
+      if (changed.count !== 1) throw new ConflictException('This meal changed. Reload the current menu before saving.');
+      return this.prisma.meal.findUniqueOrThrow({ where: { id }, include: { category: true } });
+    }
+    return this.prisma.meal.update({ where: { id }, data, include: { category: true } });
   }
 
   // حذف وجبة

@@ -25,6 +25,13 @@ export class RestaurantsController {
   findAll() {
     return this.restaurantsService.findAll();
   }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('admin/all')
+  findAllForAdmin(@Request() req: { user: { id: string } }) {
+    return this.restaurantsService.findAllForAdmin(req.user.id);
+  }
   // Get restaurants owned by the logged-in user
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))

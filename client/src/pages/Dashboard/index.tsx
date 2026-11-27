@@ -413,7 +413,7 @@ function OwnerDashboard({ userName }: { userName: string }) {
             const [mealResult, orderResult] =
               await Promise.allSettled([
                 apiClient.get<Meal[]>(
-                  `meals/restaurant/${restaurant.id}`,
+                  `meals/manage/restaurant/${restaurant.id}`,
                 ),
                 apiClient.get<Order[]>(
                   `orders/restaurant/${restaurant.id}`,

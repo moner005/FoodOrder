@@ -58,11 +58,17 @@ export class RestaurantsService {
       },
     });
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.status !== 'ACTIVE') {
       throw new NotFoundException('Restaurant not found');
     }
 
     return restaurant;
+  }
+
+  async findAllForAdmin(adminId: string) {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId }, select: { role: true, isSuspended: true } });
+    if (!admin || admin.role !== 'ADMIN' || admin.isSuspended) throw new ForbiddenException('Administrator access required');
+    return this.prisma.restaurant.findMany({ orderBy: [{ status: 'asc' }, { name: 'asc' }] });
   }
 
   // Create restaurant and assign creator as owner
@@ -160,7 +166,7 @@ export class RestaurantsService {
       }
     }
 
-    const data: Prisma.RestaurantUpdateInput = {};
+    const data: Prisma.RestaurantUpdateManyMutationInput = {};
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.slug !== undefined) data.slug = dto.slug;
     if (dto.description !== undefined) data.description = dto.description;
@@ -187,10 +193,15 @@ export class RestaurantsService {
       data.deliveryAreas = normalizeDeliveryAreas(dto.deliveryAreas);
     }
 
-    return this.prisma.restaurant.update({
-      where: { id },
-      data,
-    });
+    if (dto.expectedUpdatedAt !== undefined) {
+      const expectedUpdatedAt = new Date(dto.expectedUpdatedAt);
+      if (Number.isNaN(expectedUpdatedAt.getTime())) throw new BadRequestException('A valid restaurant revision is required');
+      data.updatedAt = new Date(Math.max(Date.now(), expectedUpdatedAt.getTime() + 1));
+      const changed = await this.prisma.restaurant.updateMany({ where: { id, updatedAt: expectedUpdatedAt }, data });
+      if (changed.count !== 1) throw new ConflictException('Restaurant settings changed. Reload the latest settings before saving.');
+      return this.prisma.restaurant.findUniqueOrThrow({ where: { id } });
+    }
+    return this.prisma.restaurant.update({ where: { id }, data });
   }
 
   // Deactivate restaurant instead of permanently deleting it

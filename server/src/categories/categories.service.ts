@@ -45,7 +45,7 @@ export class CategoriesService {
       where: { id: restaurantId },
     });
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.status !== 'ACTIVE') {
       throw new NotFoundException('Restaurant not found');
     }
 
@@ -58,6 +58,13 @@ export class CategoriesService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findManageByRestaurant(restaurantId: string, userId: string, userRole: string) {
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
+    await this.checkRestaurantAccess(userId, restaurantId, userRole);
+    return this.prisma.category.findMany({ where: { restaurantId }, include: { _count: { select: { meals: true } } }, orderBy: { createdAt: 'desc' } });
   }
 
   async create(

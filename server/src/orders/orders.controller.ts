@@ -22,6 +22,16 @@ import { CreateOrderDto } from './dto/create-order.dto.js';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @Get('admin/all')
+  findAllForAdmin(@Request() req: { user: { id: string } }) {
+    return this.ordersService.findAllForAdmin(req.user.id);
+  }
+
+  @Patch('admin/:id/status')
+  updateAdminStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto, @Request() req: { user: { id: string } }) {
+    return this.ordersService.updateStatusForAdmin(id, dto.status, req.user.id);
+  }
+
   // Get restaurant orders
   @Get('restaurant/:restaurantId')
   findByRestaurant(

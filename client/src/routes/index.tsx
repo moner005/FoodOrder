@@ -21,6 +21,7 @@ import OwnerHomePage from "@/pages/Owner/OwnerHomPage";
 import MealForm from "@/pages/Owner/MealForm";
 import { routes } from "@/constants/routes";
 import FAQsPage from "@/pages/FAQs";
+import AdminPage from "@/pages/Admin/Admin";
 import { RequireAuth } from "@/components/common/RequireAuth";
 export const router = createBrowserRouter([
   {
@@ -100,6 +101,14 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <DashboardPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: "admin",
+        element: (
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <AdminPage />
           </RequireAuth>
         ),
       },

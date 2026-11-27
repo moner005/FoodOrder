@@ -1,11 +1,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import MealCard from '@/components/menu/MealCard';
 import type { MenuItem } from '@/types/menu';
 import { apiClient } from '@/services/apiClient';
 import { routes } from '@/constants/routes';
+import { useAuthStore } from '@/stores/authStores';
 
 
 
@@ -20,6 +21,7 @@ interface ApiRestaurant {
 
 interface ApiMeal {
   id: string;
+  updatedAt: string;
   restaurantId: string;
   name: string;
   description?: string | null;
@@ -34,6 +36,10 @@ interface ApiMeal {
 
 export default function OwnerHomePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const requestedRestaurantId = (location.state as { restaurantId?: string } | null)?.restaurantId ?? '';
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'ADMIN';
 
   const [restaurants, setRestaurants] = useState<ApiRestaurant[]>([]);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState('');
@@ -62,9 +68,7 @@ export default function OwnerHomePage() {
         setLoadingRestaurants(true);
         setError('');
 
-        const response = await apiClient.get<ApiRestaurant[]>(
-          'restaurants/my-restaurants',
-        );
+        const response = await apiClient.get<ApiRestaurant[]>(isAdmin ? 'restaurants/admin/all' : 'restaurants/my-restaurants');
 
         if (!active) return;
 
@@ -75,6 +79,8 @@ export default function OwnerHomePage() {
           if (current && data.some((restaurant) => restaurant.id === current)) {
             return current;
           }
+
+          if (requestedRestaurantId && data.some((restaurant) => restaurant.id === requestedRestaurantId)) return requestedRestaurantId;
 
           return data[0]?.id ?? '';
         });
@@ -98,7 +104,7 @@ export default function OwnerHomePage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [isAdmin, requestedRestaurantId]);
 
   // Load meals whenever the selected restaurant changes.
   useEffect(() => {
@@ -115,12 +121,13 @@ export default function OwnerHomePage() {
         setActionError('');
 
         const response = await apiClient.get<ApiMeal[]>(
-          `meals/restaurant/${encodeURIComponent(selectedRestaurantId)}`,
+          `meals/manage/restaurant/${encodeURIComponent(selectedRestaurantId)}`,
         );
 
         if (active) {
           const mappedMeals: MenuItem[] = response.data.map((meal) => ({
             id: meal.id,
+            updatedAt: meal.updatedAt,
             restaurantId: meal.restaurantId,
             name: meal.name,
             description: meal.description ?? '',
@@ -192,14 +199,15 @@ export default function OwnerHomePage() {
       setSaving(true);
       setActionError('');
 
-      await apiClient.patch(`meals/${id}`, {
+      const response = await apiClient.patch<ApiMeal>(`meals/${id}`, {
         isAvailable: !meal.isAvailable,
+        expectedUpdatedAt: meal.updatedAt,
       });
 
       setMeals((previous) =>
         previous.map((item) =>
           item.id === id
-            ? { ...item, isAvailable: !item.isAvailable }
+          ? { ...item, isAvailable: !item.isAvailable, updatedAt: response.data.updatedAt }
             : item,
         ),
       );
@@ -209,6 +217,15 @@ export default function OwnerHomePage() {
           ? err.message
           : 'Unable to update meal availability.',
       );
+      const status = typeof err === 'object' && err !== null && 'response' in err
+        ? Number((err as { response?: { status?: number } }).response?.status)
+        : 0;
+      if (status === 409 && selectedRestaurantId) {
+        try {
+          const refreshed = await apiClient.get<ApiMeal[]>(`meals/manage/restaurant/${encodeURIComponent(selectedRestaurantId)}`);
+          setMeals(refreshed.data.map((item) => ({ id: item.id, updatedAt: item.updatedAt, restaurantId: item.restaurantId, name: item.name, description: item.description ?? '', price: Number(item.price), imageUrl: item.image ?? '', category: item.category?.name ?? 'Uncategorized', isAvailable: item.isAvailable })));
+        } catch { /* Keep the original conflict message visible. */ }
+      }
     } finally {
       setSaving(false);
     }
@@ -296,7 +313,7 @@ export default function OwnerHomePage() {
         </div>
 
         <div>
-          <p className="eyebrow">RESTAURANT OWNER</p>
+          <p className="eyebrow">{isAdmin ? 'PLATFORM MENU MANAGEMENT' : 'RESTAURANT OWNER'}</p>
 
           <h1 className="owner-restaurant-name">
             {selectedRestaurant?.name}
@@ -347,13 +364,13 @@ export default function OwnerHomePage() {
               state: { restaurantId: selectedRestaurantId },
             })
           }
-          disabled={selectedRestaurant?.status !== 'ACTIVE'}
+          disabled={selectedRestaurant?.status !== 'ACTIVE' && !isAdmin}
         >
           Add new meal
         </button>
       </div>
 
-      {selectedRestaurant?.status !== 'ACTIVE' && (
+      {selectedRestaurant?.status !== 'ACTIVE' && !isAdmin && (
         <p className="owner-empty">
           This restaurant must be ACTIVE before adding meals.
         </p>
@@ -413,7 +430,7 @@ export default function OwnerHomePage() {
           <button
             className="button primary"
             type="button"
-            disabled={selectedRestaurant?.status !== 'ACTIVE'}
+            disabled={selectedRestaurant?.status !== 'ACTIVE' && !isAdmin}
             onClick={() =>
               navigate(routes.ownerMenuNew, {
                 state: { restaurantId: selectedRestaurantId },

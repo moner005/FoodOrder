@@ -15,5 +15,6 @@ export const routes = {
   profile: '/profile',
   contact: '/contact',
   dashboard: '/dashboard',
+  admin: '/admin',
   faqs: '/faqs',
 } as const

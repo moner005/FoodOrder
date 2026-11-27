@@ -17,4 +17,5 @@ export interface MenuItem {
   imageUrl: string;
   category: string;
   isAvailable: boolean;
+  updatedAt?: string;
 }

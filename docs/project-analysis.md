@@ -1,3 +1,47 @@
+# SwiftBite local integration
+
+The integration starts from the team's `feature/foodorder-final` at `278373e`.
+The React client uses the team's NestJS API, JWT sign-in, Prisma model, and
+PostgreSQL data. Use the separate local `local/swiftbite-integrated` branch
+and the dedicated Docker Compose database. The team checkout, the browser-only
+SwiftBite preview, and the old Express scaffold are separate baselines.
+
+1. Implemented and locally validated. The server's restaurant and checkout
+   contracts include delivery rules and durable grouped receipts. Each
+   restaurant retains a child order for its operations.
+2. Implemented and locally validated. The restaurant-first storefront,
+   dedicated menus, cart summary, checkout, and grouped receipt read the live
+   API. The browser test saved and reloaded a $33.50 checkout from Salford &
+   Co and Al Forno, including $5.50 in delivery fees. Order history links to
+   the durable receipt. A test with simulated shared browser storage verified
+   that an older tab cannot overwrite another account's cart or recreate a
+   recently cleared cart.
+3. Implemented and locally validated. The platform dashboard manages account
+   creation, display names, suspensions, and restaurant assignments. It also
+   manages venue settings, menus, approvals, and individual restaurant order statuses.
+4. Locally validated. Browser checks covered admin access, suspension and
+   reactivation after reload, a delivery fee change reaching the storefront,
+   menu editor access, an individual order advancing in a grouped receipt,
+   and cross-tab role changes. Docker database checks covered stale account,
+   venue and dish edits, owner reassignment, and suspension on existing sessions.
+
+The database owns prices, delivery settings, memberships, and orders. Restaurant
+approval and ordering availability are independent. The active account and
+current membership decide access. A single checkout has one receipt and can
+create several child restaurant orders with independent statuses.
+
+On 27 November 2026, Docker Compose started PostgreSQL 16.14 with a named
+volume and loopback port 55434. All three Prisma migrations present at the
+checkout milestone applied. The live database test verified the fee total
+and two child orders for one checkout, replay under concurrent submission,
+rejection of stale prices and invalid delivery settings, and receipt access.
+An upgrade rehearsal in a separate database preserved a pre-existing order's
+status and total and applied legacy restaurant settings without hiding the
+venue. After fixing missing NestJS test-module providers, the backend build,
+16 unit tests, and the existing end-to-end smoke test passed.
+
+The section below records the original course backlog and scaffold history.
+
 # Scaffold implementation status — 29 October 2026
 
 This repository currently contains a structural foundation only: a runnable React client scaffold and an Express health endpoint. The planned backlog (30 frontend tasks and 11 later backend tasks) remains open; feature routes are labeled as not implemented. The cart is only an empty, typed in-memory list of meal ID, quantity and note. Cart persistence and rules remain backlog. No restaurant/menu data, authentication, checkout submission, orders, simulated delivery status, fake API, or database behavior is implemented. The runnable baseline is Vite on port 5173 and the Express API on port 5001. The proposed json-server/db.json API on port 5000 is pending.

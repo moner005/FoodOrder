@@ -10,6 +10,7 @@ import {
 
 import { apiClient } from '@/services/apiClient';
 import { routes } from '@/constants/routes';
+import { useAuthStore } from '@/stores/authStores';
 
 type MealFormValues = {
   name: string;
@@ -43,6 +44,7 @@ interface ApiMeal {
   price: number | string;
   image?: string | null;
   isAvailable: boolean;
+  updatedAt: string;
   categoryId?: string;
   category?: {
     id: string;
@@ -90,6 +92,8 @@ export default function MealForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'ADMIN';
 
   const requestedRestaurantId =
     (location.state as { restaurantId?: string } | null)
@@ -108,6 +112,7 @@ export default function MealForm() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [existingMealName, setExistingMealName] = useState('');
+  const [existingMealUpdatedAt, setExistingMealUpdatedAt] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -127,9 +132,7 @@ export default function MealForm() {
         setLoadError('');
 
         const restaurantResponse =
-          await apiClient.get<ApiRestaurant[]>(
-            'restaurants/my-restaurants',
-          );
+          await apiClient.get<ApiRestaurant[]>(isAdmin ? 'restaurants/admin/all' : 'restaurants/my-restaurants');
 
         const ownedRestaurants = restaurantResponse.data;
 
@@ -145,7 +148,7 @@ export default function MealForm() {
 
         if (id) {
           const mealResponse = await apiClient.get<ApiMeal>(
-            `meals/${encodeURIComponent(id)}`,
+            `meals/manage/${encodeURIComponent(id)}`,
           );
 
           if (!active) return;
@@ -165,6 +168,7 @@ export default function MealForm() {
 
           setSelectedRestaurantId(meal.restaurantId);
           setExistingMealName(meal.name);
+          setExistingMealUpdatedAt(meal.updatedAt);
 
           setValues({
             name: meal.name,
@@ -209,7 +213,7 @@ export default function MealForm() {
     return () => {
       active = false;
     };
-  }, [id, requestedRestaurantId]);
+  }, [id, requestedRestaurantId, isAdmin]);
 
   // Load real categories for the selected restaurant.
   useEffect(() => {
@@ -226,7 +230,7 @@ export default function MealForm() {
         setFormError(null);
 
         const response = await apiClient.get<ApiCategory[]>(
-          `categories/restaurant/${encodeURIComponent(selectedRestaurantId)}`,
+          `categories/manage/restaurant/${encodeURIComponent(selectedRestaurantId)}`,
         );
 
         if (active) {
@@ -299,7 +303,7 @@ export default function MealForm() {
       return;
     }
 
-    if (!id && selectedRestaurant.status !== 'ACTIVE') {
+    if (!id && selectedRestaurant.status !== 'ACTIVE' && !isAdmin) {
       setFormError(
         'You cannot add meals to an inactive restaurant.',
       );
@@ -327,7 +331,7 @@ export default function MealForm() {
       setFormError(null);
 
       if (id) {
-        await apiClient.patch(`meals/${id}`, data);
+        await apiClient.patch(`meals/${id}`, { ...data, expectedUpdatedAt: existingMealUpdatedAt });
       } else {
         await apiClient.post('meals', {
           ...data,

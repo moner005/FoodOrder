@@ -65,6 +65,24 @@ function isPrismaErrorCode(error: unknown, code: string): boolean {
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private async assertAdmin(adminId: string) {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId }, select: { role: true, isSuspended: true } });
+    if (!admin || admin.role !== 'ADMIN' || admin.isSuspended) throw new ForbiddenException('Administrator access required');
+  }
+
+  async findAllForAdmin(adminId: string) {
+    await this.assertAdmin(adminId);
+    return this.prisma.order.findMany({
+      include: { restaurant: { select: { id: true, name: true } }, items: true, user: { select: { id: true, name: true, email: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateStatusForAdmin(id: string, status: string, adminId: string) {
+    await this.assertAdmin(adminId);
+    return this.updateStatus(id, status, adminId, 'ADMIN');
+  }
+
   // Create a new order
   async create(userId: string, dto: CreateOrderDto) {
     const result = await this.checkout(userId, {

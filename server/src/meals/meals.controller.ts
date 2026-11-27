@@ -26,6 +26,20 @@ export class MealsController {
   findByRestaurant(@Param('restaurantId') restaurantId: string) {
     return this.mealsService.findByRestaurant(restaurantId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @Get('manage/restaurant/:restaurantId')
+  findManageByRestaurant(@Param('restaurantId') restaurantId: string, @Request() req: { user: { id: string; role: string } }) {
+    return this.mealsService.findManageByRestaurant(restaurantId, req.user.id, req.user.role);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @Get('manage/:id')
+  findManageOne(@Param('id') id: string, @Request() req: { user: { id: string; role: string } }) {
+    return this.mealsService.findManageOne(id, req.user.id, req.user.role);
+  }
   @Get()
   findAll() {
     return this.mealsService.findAll();

@@ -9,6 +9,7 @@ import { RestaurantsModule } from './restaurants/restaurants.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { MealsModule } from './meals/meals.module.js';
 import { OrdersModule } from './orders/orders.module.js';
+import { UsersModule } from './users/users.module.js';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,6 +22,7 @@ import { OrdersModule } from './orders/orders.module.js';
     CategoriesModule,
     MealsModule,
     OrdersModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

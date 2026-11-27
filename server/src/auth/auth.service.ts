@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -88,6 +89,10 @@ export class AuthService {
 
     if (!passwordIsValid) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (user.isSuspended) {
+      throw new ForbiddenException('This account is suspended');
     }
 
     const accessToken = await this.jwtService.signAsync({

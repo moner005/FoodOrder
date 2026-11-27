@@ -28,6 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         phone: true,
         role: true,
         address: true,
+        isSuspended: true,
       },
     });
 
@@ -35,6 +36,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User no longer exists');
     }
 
-    return user;
+    if (user.isSuspended) {
+      throw new UnauthorizedException('This account is suspended');
+    }
+
+    const { isSuspended: _isSuspended, ...activeUser } = user;
+    return activeUser;
   }
 }

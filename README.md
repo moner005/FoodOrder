@@ -2,7 +2,7 @@
 
 A full-stack food ordering application that allows customers to explore restaurants, browse meals, manage shopping carts, place orders, and track their order status.
 
-The platform also provides restaurant owners with menu and order management capabilities, while administrators can manage restaurant approvals.
+Restaurant owners manage menus and orders. Platform administrators manage accounts, restaurant approvals, venue settings, menus, and orders.
 
 ## Tech Stack
 
@@ -45,9 +45,9 @@ The platform also provides restaurant owners with menu and order management capa
 Install the following before running the project:
 
 - Git
-- Node.js 22.12 or later
+- Node.js 22.22.3+ or 24.15.0+ on the supported LTS lines
 - npm
-- PostgreSQL
+- Docker Desktop or Docker Engine with Compose
 
 ## Installation
 
@@ -78,47 +78,38 @@ npm ci
 
 ## Environment Configuration
 
-Environment files are not included in the repository for security reasons.
-
-Create your local environment files from the examples.
-
-From the project root:
+Copy the local environment examples from the project root.
 
 ```powershell
+Copy-Item .env.example .env
 Copy-Item server/.env.example server/.env
-Copy-Item client/.env.example client/.env
+Copy-Item client/.env.example client/.env.local
 ```
 
-Update the environment variables with your own local configuration.
-
-### Backend Environment Variables
-
-```env
-DATABASE_URL="postgresql://postgres:YOUR_LOCAL_PASSWORD@localhost:5432/foodorder?schema=public"
-JWT_SECRET="YOUR_OWN_SECRET"
-```
-
-### Frontend Environment Variables
-
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-Never commit real passwords, tokens, or API keys.
+Set a local database password in the root `.env` and use the same password in
+`server/.env`'s `DATABASE_URL`. URL-encode the password in `DATABASE_URL`
+if it contains URL punctuation. Replace the JWT secret with a random value.
+The ignored environment files hold the local credentials.
 
 ## Database Setup
 
-1. Install and start PostgreSQL.
-2. Create a database named `foodorder`.
-3. Configure `DATABASE_URL` in `server/.env`.
-4. Run the Prisma commands from the server directory.
+Start PostgreSQL from the project root with Docker running. The Compose volume
+preserves the database across restarts. The default PostgreSQL port is `55434`.
 
-```bash
+```powershell
+docker compose up -d --wait
+cd server
 npx prisma generate
 npx prisma migrate deploy
+npm run build
 ```
 
-The migration files must be included in the repository.
+To populate a new local browsing database, set `FOODORDER_PREVIEW_PASSWORD` in
+the terminal to a test password of at least 12 characters and run
+`node prisma/seed-preview.mjs` from `server/`. This adds the fictional
+customer, owner, and admin accounts `customer@example.test`, `owner@example.test`,
+and `admin@example.test` and a small restaurant catalog. The seed accepts only
+the dedicated loopback preview database and preserves existing preview edits on rerun.
 
 ## Running the Project
 
@@ -126,7 +117,7 @@ The migration files must be included in the repository.
 
 ```bash
 cd server
-npm run start:dev
+node --env-file=.env dist/main.js
 ```
 
 ### Start the Frontend
@@ -135,14 +126,19 @@ In another terminal:
 
 ```bash
 cd client
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 4191 --strictPort
 ```
 
-The frontend is available at:
+The storefront is at [127.0.0.1:4191](http://127.0.0.1:4191/) and the API
+documentation is at [127.0.0.1:3302/api/docs](http://127.0.0.1:3302/api/docs).
 
-http://localhost:5173
-
-The backend API uses the configured server port and API prefix.
+With the preview fixtures, sign in as the customer and add Margherita Pizza
+from Salford & Co and Wood-fired Margherita from Al Forno. Choose Willow Quarter
+at checkout. The combined receipt totals $33.50 and includes a status for each
+restaurant's order. Sign in as the owner to access the assigned menu and order
+dashboard. Sign in as the admin and open **Admin** for accounts, restaurants,
+menu links, and orders. Cedar Kitchen is seeded as a pending restaurant for
+the approval workflow.
 
 ## Build and Validation
 

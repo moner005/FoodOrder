@@ -8,12 +8,17 @@ import {
   IsArray,
   ArrayMaxSize,
   IsNumber,
+  IsISO8601,
   Min,
   Max,
   ValidateIf,
 } from 'class-validator';
 
 export class UpdateRestaurantDto {
+  @ValidateIf((_, value) => value !== undefined)
+  @IsISO8601()
+  expectedUpdatedAt?: string;
+
   @ValidateIf((_, value) => value !== undefined)
   @IsString()
   @IsNotEmpty()

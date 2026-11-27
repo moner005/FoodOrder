@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "@/services/apiClient";
+import "../Home/marketplace.css";
 import "./Orders.css";
 
 interface OrderItem {
@@ -14,6 +15,7 @@ interface OrderItem {
 
 interface Order {
   id: string;
+  checkoutBatchId?: string | null;
   status: string;
   subtotal: number | string;
   deliveryFee: number | string;
@@ -97,6 +99,7 @@ export default function OrdersPage() {
   };
 
   const formatDate = (date: string) => new Date(date).toLocaleString();
+  const shownReceipts = new Set<string>();
 
   return (
     <main className="orders-page">
@@ -161,7 +164,10 @@ export default function OrdersPage() {
 
         {!loading && !error && orders.length > 0 && (
           <div className="orders-list">
-            {orders.map((order) => (
+            {orders.map((order) => {
+              const showReceipt = Boolean(order.checkoutBatchId && !shownReceipts.has(order.checkoutBatchId));
+              if (showReceipt && order.checkoutBatchId) shownReceipts.add(order.checkoutBatchId);
+              return (
               <article className="order-card" key={order.id}>
                 <div className="order-card-top">
                   <div>
@@ -184,6 +190,7 @@ export default function OrdersPage() {
                 </div>
 
                 <p className="order-date">{formatDate(order.createdAt)}</p>
+                {showReceipt && order.checkoutBatchId && <p><Link className="sb-text-link" to={`/orders/checkouts/${encodeURIComponent(order.checkoutBatchId)}`}>View grouped checkout receipt →</Link></p>}
 
                 <div className="order-items-list">
                   {order.items.map((item) => (
@@ -222,7 +229,8 @@ export default function OrdersPage() {
                   </button>
                 )}
               </article>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

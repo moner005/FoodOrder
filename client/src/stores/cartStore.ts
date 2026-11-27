@@ -13,6 +13,7 @@ interface CartStore {
   decreaseQuantity: (mealId: string) => void;
   removeItem: (mealId: string) => void;
   clear: () => void;
+  clearIfUnchanged: (userId: string, expected: CartLine[]) => boolean;
   reset: () => void;
 }
 
@@ -38,7 +39,7 @@ function getCartKey(userId: string) {
   return `${CART_STORAGE_PREFIX}${userId}`;
 }
 
-function readCart(userId: string): CartLine[] {
+function readCart(userId: string, requireReadableStorage = false): CartLine[] {
   try {
     const saved = localStorage.getItem(getCartKey(userId));
 
@@ -67,7 +68,8 @@ function readCart(userId: string): CartLine[] {
         price: Number(item.price ?? 0),
         imageUrl: item.imageUrl ?? '',
       }));
-  } catch {
+  } catch (error) {
+    if (requireReadableStorage) throw error;
     return [];
   }
 }
@@ -108,11 +110,12 @@ export const useCartStore = create<CartStore>((set, get) => ({
     const existing = current.find(
       (item) => item.mealId === newItem.mealId,
     );
+    if (existing && existing.quantity >= 99) return false;
 
     const updated = existing
       ? current.map((item) =>
           item.mealId === newItem.mealId
-            ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: Math.min(99, item.quantity + 1) }
             : item,
         )
       : [...current, { ...newItem }];
@@ -173,6 +176,19 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
 
     set({ items: [] });
+  },
+
+  clearIfUnchanged: (userId, expected) => {
+    if (getCurrentUserId() !== userId) return false;
+    const current = readCart(userId, true);
+    const signature = (items: CartLine[]) => JSON.stringify(items.map(({ mealId, quantity, note }) => ({ mealId, quantity, note })).sort((a, b) => a.mealId.localeCompare(b.mealId)));
+    if (signature(current) !== signature(expected)) {
+      set({ items: current });
+      return false;
+    }
+    localStorage.removeItem(getCartKey(userId));
+    set({ items: [] });
+    return true;
   },
 
   // Clear in-memory items on logout without deleting that user's saved cart.

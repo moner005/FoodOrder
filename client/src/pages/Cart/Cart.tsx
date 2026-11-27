@@ -1,198 +1,61 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useCartStore } from "@/stores/cartStore";
+import { getMeal, getRestaurants } from "@/services/marketplace";
+import { quoteCart } from "@/services/cartQuote";
+import type { Meal, Restaurant } from "@/types/marketplace";
+import { amountToMinor, formatMinor } from "@/types/marketplace";
+import "../Home/marketplace.css";
 
-import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+export const CART_STORAGE_KEY = "foodorder-cart-v2";
 
-import '@/pages/Cart/Cart.css';
-import { useCartStore } from '@/stores/cartStore';
-
-export const CART_STORAGE_KEY = 'foodorder-cart-v2';
-
-export interface CartItem {
-  id: string | number;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-export const addToCart = (newProduct: Omit<CartItem, 'quantity'>) => {
-  useCartStore.getState().load();
-
-  useCartStore.getState().addItem({
-    mealId: String(newProduct.id),
-    name: newProduct.name,
-    description: newProduct.description,
-    price: newProduct.price,
-    imageUrl: newProduct.image,
-    quantity: 1,
-    note: '',
-  });
-};
-
-const Cart = () => {
-  const {
-    items,
-    load,
-    increaseQuantity,
-    decreaseQuantity,
-    removeItem,
-    clear,
-  } = useCartStore();
-
+export default function CartPage() {
+  const items = useCartStore((state) => state.items);
+  const load = useCartStore((state) => state.load);
+  const increase = useCartStore((state) => state.increaseQuantity);
+  const decrease = useCartStore((state) => state.decreaseQuantity);
+  const remove = useCartStore((state) => state.removeItem);
+  const [meals, setMeals] = useState<Map<string, Meal | null>>(new Map());
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(false);
+  const [error, setError] = useState("");
+  const ids = items.map((item) => item.mealId).sort().join("|");
+  useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    load();
-  }, [load]);
-
-  const cartItems = items;
-
-  const subtotal = cartItems.reduce(
-    (total, item) =>
-      total + (item.price ?? 0) * item.quantity,
-    0,
-  );
-
-  const deliveryFee = cartItems.length > 0 ? 2.99 : 0;
-
-  const totalItems = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
-
-  const total = subtotal + deliveryFee;
-
-  const clearCart = () => {
-    if (window.confirm('Are you sure you want to clear your cart?')) {
-      clear();
-    }
-  };
-
-  return (
-    <div className="cart-page">
-      <div className="cart-header">
-        <div>
-          <span className="cart-subtitle">YOUR ORDER</span>
-          <h1>My Cart</h1>
-          <p>You have {totalItems} items in your shopping cart.</p>
-        </div>
-
-        <div className="cart-icon">🛒</div>
-      </div>
-
-      {cartItems.length === 0 ? (
-        <div className="empty-cart">
-          <div>🍽️</div>
-          <h2>Your cart is empty!</h2>
-          <p>Looks like you haven't added anything yet.</p>
-
-          <Link to="/meals" className="shop-btn">
-            Explore Menu
-          </Link>
-        </div>
-      ) : (
-        <div className="cart-layout">
-          <section className="cart-products">
-            <div className="section-title">
-              <h2>Shopping Cart</h2>
-              <span className="quantity-control">
-                {cartItems.length} Products
-              </span>
-            </div>
-
-            {cartItems.map((item) => (
-              <div className="cart-product" key={item.mealId}>
-                {item.imageUrl ? (
-                  <img
-                    src={item.imageUrl}
-                    alt={item.name ?? 'Meal'}
-                    className="cart-product-image"
-                  />
-                ) : (
-                  <div className="cart-product-image">🍽️</div>
-                )}
-
-                <div className="cart-product-info">
-                  <h3>{item.name ?? `Meal ${item.mealId}`}</h3>
-                  <p>{item.description}</p>
-
-                  <span className="cart-price">
-                    ${(item.price ?? 0).toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="quantity-control">
-                  <button
-                    onClick={() => decreaseQuantity(item.mealId)}
-                    aria-label={`Decrease ${item.name} quantity`}
-                  >
-                    −
-                  </button>
-
-                  <span>{item.quantity}</span>
-
-                  <button
-                    onClick={() => increaseQuantity(item.mealId)}
-                    aria-label={`Increase ${item.name} quantity`}
-                  >
-                    +
-                  </button>
-
-                  <button
-                    className="remove-item-btn"
-                    onClick={() => removeItem(item.mealId)}
-                    aria-label={`Remove ${item.name}`}
-                  >
-                    🗑
-                  </button>
-                </div>
-
-                <div className="item-total">
-                  ${((item.price ?? 0) * item.quantity).toFixed(2)}
-                </div>
-              </div>
-            ))}
-
-            <Link to="/meals" className="continue-shopping">
-              ← Continue Shopping
-            </Link>
-
-            <button className="clear-cart-btn" onClick={clearCart}>
-              🗑 Clear Cart
-            </button>
-          </section>
-
-          <aside className="order-summary">
-            <h2>Order Summary</h2>
-
-            <div className="summary-row">
-              <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-
-            <div className="summary-row">
-              <span>Delivery Fee</span>
-              <span>${deliveryFee.toFixed(2)}</span>
-            </div>
-
-            <div className="summary-divider" />
-
-            <div className="summary-total">
-              <span>Total</span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-
-            <Link to="/checkout" className="checkout-btn">
-              Proceed to Checkout →
-            </Link>
-
-            <div className="secure-payment">
-              🔒 Secure Checkout
-            </div>
-          </aside>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Cart;
+    let active = true;
+    if (!ids) return () => { active = false; };
+    void Promise.resolve().then(() => { if (active) { setLoadingCatalog(true); setError(""); } });
+    Promise.all([getRestaurants(), ...items.map((item) => getMeal(item.mealId).catch(() => null))]).then((results) => {
+      if (!active) return;
+      setRestaurants(results[0] as Restaurant[]);
+      const next = new Map<string, Meal | null>();
+      items.forEach((item, index) => next.set(item.mealId, results[index + 1] as Meal | null));
+      setMeals(next);
+    }).catch((reason: unknown) => active && setError(reason instanceof Error ? reason.message : "Could not refresh the menu." )).finally(() => active && setLoadingCatalog(false));
+    return () => { active = false; };
+  // ids changes whenever lines are added or removed; quantity changes do not affect catalog data.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ids]);
+  const quote = useMemo(() => quoteCart(items, meals, restaurants), [items, meals, restaurants]);
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  return <div className="sb-page">
+    <header className="sb-page-heading"><div><p className="sb-eyebrow">YOUR SELECTION</p><h1>Your cart</h1><p>{count} {count === 1 ? "item" : "items"} from {quote.groups.length} {quote.groups.length === 1 ? "restaurant" : "restaurants"}.</p></div><Link className="sb-text-link" to="/restaurants">Continue browsing →</Link></header>
+    {items.length === 0 ? <div className="sb-empty"><h2>Your cart is empty</h2><p>Explore restaurant menus to add a meal.</p><Link className="sb-button sb-primary" to="/restaurants">Browse restaurants</Link></div> : <>
+      {error && <p className="sb-error" role="alert">{error} Menu availability could not be refreshed.</p>}
+      {loadingCatalog && <p className="sb-muted" role="status">Refreshing current prices and availability…</p>}
+      <div className="sb-cart-layout"><section className="sb-cart-groups">
+        {quote.groups.map((group) => <article className="sb-cart-group" key={group.restaurant.id}><div className="sb-cart-group-heading"><div><p className="sb-eyebrow">RESTAURANT</p><h2>{group.restaurant.name}</h2></div><span className={group.restaurant.isOpen ? "sb-open" : "sb-closed"}>{group.restaurant.isOpen ? "Open" : "Closed"}</span></div>
+          {group.lines.map(({ line, meal }) => <div className="sb-cart-line" key={line.mealId}><img src={meal.image || line.imageUrl || "https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=300"} alt="" /><div className="sb-cart-line-info"><h3>{meal.name}</h3><p>{meal.description || ""}</p><span>{meal.isAvailable ? "Available" : "Sold out"} · {formatMinor(amountToMinor(meal.price))} each</span></div><div className="sb-cart-quantity"><button type="button" onClick={() => decrease(line.mealId)} aria-label={`Decrease ${meal.name}`}>−</button><span>{line.quantity}</span><button type="button" onClick={() => increase(line.mealId)} disabled={line.quantity >= 99} aria-label={`Increase ${meal.name}`}>+</button></div><strong>{formatMinor(amountToMinor(meal.price) * line.quantity)}</strong><button className="sb-text-button" type="button" onClick={() => remove(line.mealId)}>Remove</button></div>)}
+          <div className="sb-group-totals"><span>Food subtotal <strong>{formatMinor(group.subtotalMinor)}</strong></span><span>Minimum <strong>{formatMinor(group.minimumMinor)}</strong></span><span>Delivery <strong>{formatMinor(group.feeMinor)}</strong></span></div>
+        </article>)}
+        {items.some((item) => !meals.get(item.mealId)) && <article className="sb-closed-notice"><strong>Some dishes are no longer on the menu.</strong>{items.filter((item) => !meals.get(item.mealId)).map((item) => <p key={item.mealId}>{item.name || "A previous menu item"} <button className="sb-text-button" type="button" onClick={() => remove(item.mealId)}>Remove from cart</button></p>)}</article>}
+      </section><aside className="sb-summary"><h2>Order summary</h2><div className="sb-total-row"><span>Food subtotal</span><strong>{formatMinor(quote.subtotalMinor)}</strong></div><div className="sb-total-row"><span>Delivery fees</span><strong>{formatMinor(quote.deliveryFeeMinor)}</strong></div><div className="sb-total-row sb-total"><span>Estimated total</span><strong>{formatMinor(quote.totalMinor)}</strong></div>
+        {quote.areaRequired && <div className="sb-summary-note"><strong>Shared delivery area</strong><p>{quote.commonAreas.length ? quote.commonAreas.join(", ") : "No common delivery area for these restaurants."}</p></div>}
+        {quote.issues.map((issue) => <p className="sb-error" key={issue}>{issue}</p>)}
+        {quote.issues.length === 0 && !loadingCatalog && <Link className="sb-button sb-primary sb-full" to="/checkout">Continue to checkout →</Link>}
+        {quote.issues.length > 0 && <p className="sb-muted">Resolve the items above before checkout.</p>}
+        <p className="sb-muted">Each restaurant has its own delivery fee and minimum.</p>
+      </aside></div>
+    </>}
+  </div>;
+}

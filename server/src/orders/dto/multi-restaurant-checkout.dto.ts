@@ -53,6 +53,10 @@ export class MultiRestaurantCheckoutDto {
   requestId?: string;
 
   @ValidateIf((_, value) => value !== undefined)
+  @IsUUID()
+  expectedCustomerId?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
   @IsInt()
   @Min(0)
   @Max(Number.MAX_SAFE_INTEGER)

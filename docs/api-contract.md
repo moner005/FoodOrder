@@ -19,8 +19,10 @@ are USD decimal amounts. Administrators update operational settings through
 
 `POST /api/orders/checkout` accepts an address, optional notes, and meal IDs
 and quantities. Supply `deliveryArea` for carts with area restrictions.
-The integrated client sends a UUID `requestId`, `expectedTotalMinor`, and an
-`expectedUnitPriceMinor` per item. The quote values are integer cents.
+The integrated client sends a UUID `requestId`, `expectedCustomerId`,
+`expectedTotalMinor`, and an `expectedUnitPriceMinor` per item. The quote
+values are integer cents. The API rejects a checkout when the expected
+customer differs from the authenticated account.
 
 The transaction checks the current menu, restaurant status, minimums, fees,
 and shared area. The response preserves `ordersCreated` and `orders` and

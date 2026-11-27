@@ -91,6 +91,8 @@ const Header = () => {
           Checkout
         </NavLink>
 
+        {user && <NavLink to="/orders" onClick={() => setMenuOpen(false)}>Orders</NavLink>}
+
         {user && (
           <NavLink to="/profile" onClick={() => setMenuOpen(false)}>
             My Profile

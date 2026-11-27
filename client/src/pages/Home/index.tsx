@@ -1,126 +1,51 @@
-
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import "./home.css";
+import { getRestaurants } from "@/services/marketplace";
+import type { Restaurant } from "@/types/marketplace";
+import "./marketplace.css";
 
-import topBun from "../../assets/burger/top-bun.png";
-import lettuce from "../../assets/burger/lettuce.png";
-import tomato from "../../assets/burger/tomato.png";
-import cheese from "../../assets/burger/cheese.png";
-import patty from "../../assets/burger/patty.png";
-import bottomBun from "../../assets/burger/bottom-bun.png";
+const FALLBACK = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&auto=format&fit=crop";
 
-const features = [
-  {
-    icon: "🛵",
-    title: "Fast Delivery",
-    description: "At your doorstep",
-  },
-  {
-    icon: "🛡",
-    title: "Secure Payment",
-    description: "Shop with confidence",
-  },
-  {
-    icon: "🍴",
-    title: "Wide Variety",
-    description: "Explore top restaurants",
-  },
-  {
-    icon: "🎧",
-    title: "24/7 Support",
-    description: "We're here to help",
-  },
-];
+export default function HomePage() {
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    let active = true;
+    getRestaurants().then((data) => active && setRestaurants(data.slice(0, 3)))
+      .catch((reason: unknown) => active && setError(reason instanceof Error ? reason.message : "Restaurants are unavailable right now."));
+    return () => { active = false; };
+  }, []);
 
-
-
-function CustomerHome() {
   return (
-    <main className="customer-home">
-      {/* HERO SECTION */}
-      <section className="customer-hero">
-        <div className="hero-decoration circle-one"></div>
-        <div className="hero-decoration circle-two"></div>
-        <div className="hero-decoration circle-three"></div>
-
-        <div className="hero-content">
-          <span className="hero-tag">🍴 Delicious Food, Delivered Fast</span>
-
-          <h1>
-            Good Food.
-            <br />
-            <span>Great Mood!</span>
-          </h1>
-
-          <p>
-            Order your favorite meals from the best restaurants and enjoy fast
-            delivery at your doorstep.
-          </p>
-
-          <div className="hero-buttons">
-            <Link to="/restaurants" className="hero-primary-btn">
-              Explore Restaurants <span>→</span>
-            </Link>
-          </div>
-
-          <div className="hero-small-info">
-            <div>
-              <strong>500+</strong>
-              <span>Restaurants</span>
-            </div>
-
-            <div>
-              <strong>10k+</strong>
-              <span>Happy Customers</span>
-            </div>
-
-            <div>
-              <strong>30 min</strong>
-              <span>Fast Delivery</span>
-            </div>
+    <div className="sb-page sb-home">
+      <section className="sb-hero">
+        <div className="sb-hero-copy">
+          <p className="sb-eyebrow">GOOD FOOD, CLOSE TO HOME</p>
+          <h1>A good meal<br /><em>brings us together.</em></h1>
+          <p>Explore neighborhood kitchens, see what is being served, and build one order from more than one restaurant.</p>
+          <div className="sb-actions">
+            <Link className="sb-button sb-primary" to="/restaurants">Browse restaurants <span aria-hidden="true">→</span></Link>
+            <Link className="sb-text-link" to="/meals">Explore all meals</Link>
           </div>
         </div>
-
-        <div className="hero-visual">
-          <div className="burger-background-circle"></div>
-
-          <div className="exploding-burger">
-            <img
-              src={topBun}
-              alt="Burger top bun"
-              className="burger-part top-bun"
-            />
-
-            <img src={lettuce} alt="Lettuce" className="burger-part lettuce" />
-
-            <img src={tomato} alt="Tomato" className="burger-part tomato" />
-
-            <img src={cheese} alt="Cheese" className="burger-part cheese" />
-            <img src={patty} alt="Burger patty" className="burger-part patty" />
-
-            <img
-              src={bottomBun}
-              alt="Bottom bun"
-              className="burger-part bottom-bun"
-            />
-          </div>
+        <div className="sb-hero-image" role="img" aria-label="A table set with freshly prepared food" />
+      </section>
+      <section className="sb-section">
+        <div className="sb-section-heading">
+          <div><p className="sb-eyebrow">A PLACE TO START</p><h2>Restaurants to explore</h2></div>
+          <Link className="sb-text-link" to="/restaurants">See all restaurants →</Link>
         </div>
-      </section>
-
-      <section className="features-bar">
-        {features.map((feature, index) => (
-          <div className="feature-item" key={index}>
-            <div className="feature-icon">{feature.icon}</div>
-
-            <div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </div>
+        {error ? <p className="sb-message" role="status">{error}</p> : restaurants.length === 0 ? <p className="sb-muted">Loading neighborhood restaurants…</p> : (
+          <div className="sb-restaurant-grid">
+            {restaurants.map((restaurant) => (
+              <Link className="sb-restaurant-card" to={`/restaurants/${encodeURIComponent(restaurant.id)}/meals`} key={restaurant.id}>
+                <img src={restaurant.image || FALLBACK} alt="" onError={(event) => { event.currentTarget.src = FALLBACK; }} />
+                <div className="sb-card-body"><div className="sb-card-meta"><span>{restaurant.cuisine || "Local kitchen"}</span><span className={restaurant.isOpen ? "sb-open" : "sb-closed"}>{restaurant.isOpen ? "Open now" : "Closed"}</span></div><h3>{restaurant.name}</h3><p>{restaurant.description || restaurant.address || "Explore the menu"}</p><span className="sb-text-link">View menu →</span></div>
+              </Link>
+            ))}
           </div>
-        ))}
+        )}
       </section>
-    </main>
+    </div>
   );
 }
-
-export default CustomerHome;

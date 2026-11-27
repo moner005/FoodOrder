@@ -4,12 +4,14 @@ import { MainLayout } from "@/layouts/MainLayout";
 import ContactPage from "@/pages/Contact";
 import HomePage from "@/pages/Home";
 import RestaurantsPage from "@/pages/Restaurants/Restaurants";
+import RestaurantMenuPage from "@/pages/Restaurants/RestaurantMenu";
 import MealsPage from "@/pages/Meals";
 import MealDetailsPage from "@/pages/Meals/MealDetails";
 import CartPage from "@/pages/Cart/Cart";
 import CheckoutPage from "@/pages/Checkout";
 import OrdersPage from "@/pages/Orders";
 import OrderDetailsPage from "@/pages/Orders/OrderDetails";
+import CheckoutReceiptPage from "@/pages/Orders/CheckoutReceipt";
 import ProfilePage from "@/pages/Profile/Profile";
 import DashboardPage from "@/pages/Dashboard";
 import NotFoundPage from "@/pages/NotFound";
@@ -27,6 +29,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "restaurants", element: <RestaurantsPage /> },
+      { path: "restaurants/:restaurantId/meals", element: <RestaurantMenuPage /> },
       { path: "meals", element: <MealsPage /> },
       { path: "meals/:id", element: <MealDetailsPage /> },
       {
@@ -52,6 +55,15 @@ export const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <OrdersPage />
+          </RequireAuth>
+        ),
+      },
+
+      {
+        path: "orders/checkouts/:id",
+        element: (
+          <RequireAuth>
+            <CheckoutReceiptPage />
           </RequireAuth>
         ),
       },

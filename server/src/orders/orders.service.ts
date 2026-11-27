@@ -272,6 +272,9 @@ export class OrdersService {
     if (userRole !== 'CUSTOMER') {
       throw new ForbiddenException('Only customer accounts can submit checkout');
     }
+    if (dto?.expectedCustomerId !== undefined && dto.expectedCustomerId !== userId) {
+      throw new ForbiddenException('Sign in to the customer account that prepared this checkout');
+    }
     if (!dto || !Array.isArray(dto.items) || dto.items.length === 0) {
       throw new BadRequestException('Add at least one meal to checkout');
     }

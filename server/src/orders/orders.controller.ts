@@ -52,11 +52,21 @@ export class OrdersController {
   // One checkout can create orders for multiple restaurants
   @Post('checkout')
   checkout(
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { id: string; role: string } },
     @Body() dto: MultiRestaurantCheckoutDto,
   ) {
-    return this.ordersService.checkout(req.user.id, dto);
+    return this.ordersService.checkout(req.user.id, dto, req.user.role);
   }
+
+  // Read one immutable grouped checkout receipt.
+  @Get('checkouts/:id')
+  findCheckout(
+    @Param('id') id: string,
+    @Request() req: { user: { id: string; role: string } },
+  ) {
+    return this.ordersService.findCheckout(id, req.user.id, req.user.role);
+  }
+
   // Create order
   @Post()
   create(

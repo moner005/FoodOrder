@@ -2,13 +2,15 @@
 import {
   IsArray,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   ValidateNested,
   ArrayMinSize,
+  MaxLength,
+  ValidateIf,
   IsInt,
   Min,
+  Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -18,6 +20,7 @@ class OrderItemDto {
 
   @IsInt()
   @Min(1)
+  @Max(2_147_483_647)
   quantity: number;
 }
 
@@ -29,9 +32,15 @@ export class CreateOrderDto {
   @IsNotEmpty()
   deliveryAddress: string;
 
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
+  @MaxLength(120)
   notes?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsString()
+  @MaxLength(120)
+  deliveryArea?: string;
 
   @IsArray()
   @ArrayMinSize(1)

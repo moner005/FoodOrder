@@ -3,11 +3,34 @@ import {
   NotFoundException,
   ForbiddenException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto.js';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto.js';
+
+function normalizeDeliveryAreas(areas: string[]): string[] {
+  const result: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of areas) {
+    if (typeof raw !== 'string') {
+      throw new BadRequestException('Delivery areas must be text values');
+    }
+    const area = raw.trim().replace(/\s+/g, ' ');
+    const key = area.toLocaleLowerCase();
+    if (!area || area.length > 120 || seen.has(key)) {
+      throw new BadRequestException('Delivery areas must be non-empty and unique, ignoring case');
+    }
+    seen.add(key);
+    result.push(area);
+  }
+  if (result.length > 50) {
+    throw new BadRequestException('A restaurant can configure up to 50 delivery areas');
+  }
+  return result;
+}
 
 @Injectable()
 export class RestaurantsService {
@@ -115,6 +138,18 @@ export class RestaurantsService {
 
     await this.checkOwnerAccess(userId, id, userRole);
 
+    const includesOperationalSettings =
+      dto.cuisine !== undefined ||
+      dto.isOpen !== undefined ||
+      dto.deliveryFee !== undefined ||
+      dto.minimumSubtotal !== undefined ||
+      dto.deliveryAreas !== undefined;
+    if (includesOperationalSettings && userRole !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Only an administrator can change restaurant operational settings',
+      );
+    }
+
     if (dto.slug && dto.slug !== restaurant.slug) {
       const existingSlug = await this.prisma.restaurant.findUnique({
         where: { slug: dto.slug },
@@ -125,9 +160,36 @@ export class RestaurantsService {
       }
     }
 
+    const data: Prisma.RestaurantUpdateInput = {};
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.slug !== undefined) data.slug = dto.slug;
+    if (dto.description !== undefined) data.description = dto.description;
+    if (dto.address !== undefined) data.address = dto.address;
+    if (dto.phone !== undefined) data.phone = dto.phone;
+    if (dto.image !== undefined) data.image = dto.image;
+    if (dto.cuisine !== undefined) {
+      data.cuisine = dto.cuisine.trim().replace(/\s+/g, ' ');
+    }
+    if (dto.isOpen !== undefined) data.isOpen = dto.isOpen;
+    if (dto.deliveryFee !== undefined) {
+      if (Number(dto.deliveryFee.toFixed(2)) !== dto.deliveryFee) {
+        throw new BadRequestException('Delivery fee must have no more than two decimal places');
+      }
+      data.deliveryFee = dto.deliveryFee;
+    }
+    if (dto.minimumSubtotal !== undefined) {
+      if (Number(dto.minimumSubtotal.toFixed(2)) !== dto.minimumSubtotal) {
+        throw new BadRequestException('Minimum subtotal must have no more than two decimal places');
+      }
+      data.minimumSubtotal = dto.minimumSubtotal;
+    }
+    if (dto.deliveryAreas !== undefined) {
+      data.deliveryAreas = normalizeDeliveryAreas(dto.deliveryAreas);
+    }
+
     return this.prisma.restaurant.update({
       where: { id },
-      data: dto,
+      data,
     });
   }
 

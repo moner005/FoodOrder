@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -42,23 +41,29 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  memberships RestaurantMember[]
-  orders      Order[]
+  memberships     RestaurantMember[]
+  orders          Order[]
+  checkoutBatches CheckoutBatch[]
 }
 
 model Restaurant {
-  id          String           @id @default(uuid())
-  name        String
-  slug        String           @unique
-  description String?
-  address     String?
-  phone       String?
-  image       String?
-  status      RestaurantStatus @default(PENDING)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id              String           @id @default(uuid())
+  name            String
+  slug            String           @unique
+  description     String?
+  address         String?
+  phone           String?
+  image           String?
+  cuisine         String           @default("")
+  status          RestaurantStatus @default(PENDING)
+  isOpen          Boolean          @default(true)
+  deliveryFee     Decimal          @default(0) @db.Decimal(10, 2)
+  minimumSubtotal Decimal          @default(0) @db.Decimal(10, 2)
+  deliveryAreas   String[]         @default([])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  members   RestaurantMember[]
+  members    RestaurantMember[]
   categories Category[]
   meals      Meal[]
   orders     Order[]
@@ -113,25 +118,48 @@ model Meal {
 }
 
 model Order {
-  id           String      @id @default(uuid())
-  userId       String
-  restaurantId String
-  status       OrderStatus @default(PENDING)
-  subtotal     Decimal     @db.Decimal(10, 2)
-  deliveryFee  Decimal     @default(0) @db.Decimal(10, 2)
-  total        Decimal     @db.Decimal(10, 2)
+  id              String      @id @default(uuid())
+  userId          String
+  restaurantId    String
+  restaurantName  String?
+  deliveryArea    String?
+  checkoutBatchId String?
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  deliveryFee     Decimal     @default(0) @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
   deliveryAddress String
-  notes        String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  user       User       @relation(fields: [userId], references: [id])
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
-  items      OrderItem[]
+  user          User           @relation(fields: [userId], references: [id])
+  restaurant    Restaurant     @relation(fields: [restaurantId], references: [id])
+  checkoutBatch CheckoutBatch? @relation(fields: [checkoutBatchId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
 
   @@index([userId])
   @@index([restaurantId])
   @@index([status])
+  @@index([checkoutBatchId])
+}
+
+model CheckoutBatch {
+  id                 String   @id @default(uuid())
+  userId             String
+  requestId          String
+  payloadFingerprint String
+  deliveryArea       String?
+  subtotal           Decimal  @db.Decimal(10, 2)
+  deliveryFee        Decimal  @db.Decimal(10, 2)
+  total              Decimal  @db.Decimal(10, 2)
+  createdAt          DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@unique([userId, requestId])
+  @@index([userId, createdAt])
 }
 
 model OrderItem {

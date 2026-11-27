@@ -3,12 +3,15 @@ import {
   IsArray,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   Min,
   ValidateNested,
   ArrayMinSize,
+  ArrayMaxSize,
+  Max,
+  MaxLength,
+  ValidateIf,
 } from 'class-validator';
 
 import { Type } from 'class-transformer';
@@ -19,7 +22,14 @@ class CheckoutItemDto {
 
   @IsInt()
   @Min(1)
+  @Max(2_147_483_647)
   quantity: number;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(Number.MAX_SAFE_INTEGER)
+  expectedUnitPriceMinor?: number;
 }
 
 export class MultiRestaurantCheckoutDto {
@@ -27,12 +37,30 @@ export class MultiRestaurantCheckoutDto {
   @IsNotEmpty()
   deliveryAddress: string;
 
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsString()
+  @MaxLength(120)
   notes?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
+  deliveryArea?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsUUID()
+  requestId?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsInt()
+  @Min(0)
+  @Max(Number.MAX_SAFE_INTEGER)
+  expectedTotalMinor?: number;
 
   @IsArray()
   @ArrayMinSize(1)
+  @ArrayMaxSize(100)
   @ValidateNested({ each: true })
   @Type(() => CheckoutItemDto)
   items: CheckoutItemDto[];

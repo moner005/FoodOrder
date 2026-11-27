@@ -417,3 +417,147 @@
     font-size: 18px;
   }
 }
+
+/* =====================================
+   CHECKOUT - PEACH GRADIENT BACKGROUND
+===================================== */
+
+.checkout-heading {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+
+  padding: 38px 45px;
+  margin-bottom: 35px;
+
+  border-radius: 0;
+
+  background:
+    radial-gradient(
+      ellipse at 0% 0%,
+      #f4b982 0%,
+      transparent 35%
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      #f5c397 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 70% 0%,
+      #fce5cf 0%,
+      transparent 45%
+    ),
+    linear-gradient(
+      110deg,
+      #f8c99f,
+      #fbe2cc,
+      #f8d0ad
+    );
+
+  animation: checkoutBannerFade 0.7s ease both;
+}
+
+.checkout-heading::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+
+  width: 250px;
+  height: 250px;
+
+  top: -150px;
+  left: -80px;
+
+  border-radius: 50%;
+  background: rgba(225, 135, 76, 0.18);
+}
+
+.checkout-heading::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+
+  width: 350px;
+  height: 180px;
+
+  bottom: -140px;
+  right: 15%;
+
+  border-radius: 50%;
+  background: rgba(255, 244, 223, 0.35);
+}
+
+.checkout-heading > * {
+  position: relative;
+  z-index: 1;
+}
+
+.checkout-heading h1 {
+  color: #452719;
+  font-family: Georgia, serif;
+}
+
+.checkout-heading > p:not(.eyebrow) {
+  color: #79503a;
+}
+
+.checkout-heading .eyebrow {
+  color: #452719;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.checkout-back-link {
+  color: #963f29;
+  transition: transform 0.25s ease;
+}
+
+.checkout-back-link:hover {
+  transform: translateX(-5px);
+}
+
+/* Smooth entrance */
+
+@keyframes checkoutBannerFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cards animation */
+
+.checkout-card,
+.checkout-summary {
+  animation: checkoutCardFade 0.6s ease both;
+}
+
+.checkout-summary {
+  animation-delay: 0.12s;
+}
+
+@keyframes checkoutCardFade {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+
+@media (max-width: 550px) {
+  .checkout-heading {
+    padding: 30px 20px;
+  }
+}

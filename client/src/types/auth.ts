@@ -1,12 +1,10 @@
 export interface User {
-    id: string,
-    name: string,
-    email: string,
-    password: string,
-    phone: string,
-    address: string,
-    // role: 'user' | 'admin',
-    // token: string
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  address?: string;
+  role?: string;
 }
 
-export type SessionUser = Omit<User, 'password'>
+export type SessionUser = User;

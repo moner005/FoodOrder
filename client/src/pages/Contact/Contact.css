@@ -1,0 +1,214 @@
+
+.contact-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding: 55px 7%;
+  font-family: var(--font-body);
+  color: var(--color-text);
+}
+
+.contact-header {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40px 45px;
+  margin-bottom: 35px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-soft);
+  background:
+    radial-gradient(ellipse at 0% 0%, #f4b982 0%, transparent 35%),
+    radial-gradient(ellipse at 100% 100%, #f5c397 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 0%, #fce5cf 0%, transparent 45%),
+    linear-gradient(110deg, #f8c99f, #fbe2cc, #f8d0ad);
+}
+
+.contact-header::before {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  left: -90px;
+  top: -160px;
+  border-radius: 50%;
+  background: rgba(225, 135, 76, 0.18);
+}
+
+.contact-header::after {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 180px;
+  right: 15%;
+  bottom: -140px;
+  border-radius: 50%;
+  background: rgba(255, 244, 223, 0.35);
+}
+
+.contact-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-header-content > span,
+.contact-subtitle {
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.contact-header h1 {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  color: var(--color-primary-deeper);
+  margin: 10px 0;
+}
+
+.contact-header p {
+  color: var(--color-text-muted);
+}
+
+.contact-header-icon {
+  font-size: 65px;
+}
+
+.contact-main-card {
+  padding: 40px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+}
+
+.contact-intro {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 35px;
+}
+
+.contact-intro h2 {
+  font-family: var(--font-heading);
+  color: var(--color-primary-deeper);
+  font-size: 29px;
+  margin: 12px 0;
+}
+
+.contact-intro p {
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.contact-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.contact-option {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 30px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-warm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.contact-option::before {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: -75px;
+  right: -45px;
+  border-radius: 50%;
+  background: rgba(225, 135, 76, 0.12);
+}
+
+.contact-option:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-soft);
+}
+
+.contact-option-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.contact-option h3 {
+  font-family: var(--font-heading);
+  color: var(--color-primary-deeper);
+}
+
+.contact-option p {
+  min-height: 65px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.contact-option a {
+  display: inline-block;
+  margin-top: 15px;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.contact-option a:hover {
+  color: var(--color-primary-hover);
+  transform: translateX(4px);
+}
+
+.contact-footer-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.contact-footer-message span {
+  color: var(--color-primary);
+  font-size: 22px;
+}
+
+@media (max-width: 850px) {
+  .contact-options {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-option p {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .contact-page {
+    padding: 25px 15px;
+  }
+
+  .contact-header {
+    padding: 28px 22px;
+  }
+
+  .contact-header h1 {
+    font-size: 32px;
+  }
+
+  .contact-header-icon {
+    font-size: 42px;
+  }
+
+  .contact-main-card {
+    padding: 22px 16px;
+  }
+}

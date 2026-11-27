@@ -370,3 +370,227 @@
     grid-template-columns: 1fr;
   }
 }
+.dashboard-recent-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-order-row:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-order-info,
+.dashboard-order-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard-order-info small {
+  color: var(--color-text-muted, #777);
+}
+
+.dashboard-order-meta {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.dashboard-order-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--color-surface-warm);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dashboard-order-arrow {
+  color: var(--color-primary);
+}
+
+@media (max-width: 600px) {
+  .dashboard-order-row {
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================
+   ROLE-BASED DASHBOARD
+========================================== */
+
+.dashboard-role-empty {
+  padding: 65px 25px;
+  text-align: center;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #eee8dd);
+  border-radius: var(--radius-panel, 16px);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-role-empty h2 {
+  color: var(--color-primary-deeper, #46291d);
+}
+
+.dashboard-role-empty p {
+  color: var(--color-text-muted, #80776b);
+  margin: 15px 0;
+}
+
+/* Owner and Admin restaurant cards */
+
+.dashboard-restaurant-list {
+  display: grid;
+  gap: 13px;
+}
+
+.dashboard-restaurant-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 17px;
+  background: var(--color-surface-warm, #fbf4e9);
+  border: 1px solid var(--color-border, #eee8dd);
+  border-radius: var(--radius-card, 14px);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.dashboard-restaurant-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-restaurant-info {
+  flex: 1;
+  min-width: 170px;
+  display: grid;
+  gap: 6px;
+}
+
+.dashboard-restaurant-info strong {
+  color: var(--color-primary-deeper, #46291d);
+  font-size: 15px;
+}
+
+.dashboard-restaurant-info span,
+.dashboard-restaurant-info small {
+  color: var(--color-text-muted, #80776b);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dashboard-restaurant-status {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: var(--color-surface-accent, #f8eee3);
+  color: var(--color-primary, #963f29);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dashboard-restaurant-numbers {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  color: var(--color-text-muted, #80776b);
+  font-size: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border, #eee8dd);
+}
+
+/* Owner order rows */
+
+.owner-order-row {
+  background: var(--color-surface);
+  align-items: flex-start;
+}
+
+.dashboard-status-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: var(--radius-control, 10px);
+  background: var(--color-primary, #963f29);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.dashboard-status-btn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #78311f);
+  transform: translateY(-2px);
+}
+
+.dashboard-status-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.dashboard-order-meta {
+  max-width: 190px;
+  min-width: 120px;
+  overflow-wrap: anywhere;
+}
+
+/* Admin */
+
+.dashboard-admin-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dashboard-admin-panel {
+  margin-bottom: 22px;
+}
+
+.dashboard-admin-panel .dashboard-panel-heading {
+  margin-bottom: 24px;
+}
+
+.dashboard-data-note {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .dashboard-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-restaurant-card {
+    align-items: flex-start;
+  }
+
+  .dashboard-order-meta {
+    max-width: 100%;
+  }
+
+  .owner-order-row {
+    flex-direction: column;
+  }
+
+  .dashboard-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

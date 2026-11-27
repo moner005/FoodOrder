@@ -1,84 +1,365 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import MealCard from '@/components/menu/MealCard'
-import { MENU_CATEGORIES } from '@/types/menu'
-import type { MenuItem } from '@/types/menu'
-import { deleteMeal, getMenu, toggleMealAvailability } from '@/services/menuStorage'
-import { CURRENT_RESTAURANT, CURRENT_RESTAURANT_ID,
-} from '@/constants/restaurant'
-import { routes } from '@/constants/routes'
+
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import MealCard from '@/components/menu/MealCard';
+import type { MenuItem } from '@/types/menu';
+import { apiClient } from '@/services/apiClient';
+import { routes } from '@/constants/routes';
+
+
+
+interface ApiRestaurant {
+  id: string;
+  name: string;
+  description?: string | null;
+  address?: string | null;
+  image?: string | null;
+  status: string;
+}
+
+interface ApiMeal {
+  id: string;
+  restaurantId: string;
+  name: string;
+  description?: string | null;
+  price: number | string;
+  image: string | null;
+  isAvailable: boolean;
+  category: {
+    id: string;
+    name: string;
+  };
+}
 
 export default function OwnerHomePage() {
-  const navigate = useNavigate()
-  const [meals, setMeals] = useState<MenuItem[]>(() => getMenu())
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [mealToDelete, setMealToDelete] = useState<MenuItem | null>(null)
+  const navigate = useNavigate();
 
-  const ownerMeals = meals.filter((meal) => meal.restaurantId === CURRENT_RESTAURANT_ID)
+  const [restaurants, setRestaurants] = useState<ApiRestaurant[]>([]);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState('');
 
-  const filteredMeals = ownerMeals.filter((meal) => {
-    const matchesCategory = selectedCategory === 'all' || meal.category === selectedCategory
-    const matchesSearch = meal.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    return matchesCategory && matchesSearch
-  })
+  const [meals, setMeals] = useState<MenuItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [mealToDelete, setMealToDelete] = useState<MenuItem | null>(null);
 
-  const hasActiveFilters = searchTerm.trim() !== '' || selectedCategory !== 'all'
+  const [loadingRestaurants, setLoadingRestaurants] = useState(true);
+  const [loadingMeals, setLoadingMeals] = useState(false);
+  const [error, setError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  function handleToggleAvailability(id: string) {
-    setMeals(toggleMealAvailability(id))
-  }
+  const selectedRestaurant = restaurants.find(
+    (restaurant) => restaurant.id === selectedRestaurantId,
+  );
+
+  // Load restaurants belonging to the logged-in owner.
+  useEffect(() => {
+    let active = true;
+
+    async function loadRestaurants() {
+      try {
+        setLoadingRestaurants(true);
+        setError('');
+
+        const response = await apiClient.get<ApiRestaurant[]>(
+          'restaurants/my-restaurants',
+        );
+
+        if (!active) return;
+
+        const data = response.data;
+        setRestaurants(data);
+
+        setSelectedRestaurantId((current) => {
+          if (current && data.some((restaurant) => restaurant.id === current)) {
+            return current;
+          }
+
+          return data[0]?.id ?? '';
+        });
+      } catch (err) {
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Unable to load your restaurants.',
+          );
+        }
+      } finally {
+        if (active) {
+          setLoadingRestaurants(false);
+        }
+      }
+    }
+
+    loadRestaurants();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Load meals whenever the selected restaurant changes.
+  useEffect(() => {
+    let active = true;
+
+    async function loadMeals() {
+      if (!selectedRestaurantId) {
+        setMeals([]);
+        return;
+      }
+
+      try {
+        setLoadingMeals(true);
+        setActionError('');
+
+        const response = await apiClient.get<ApiMeal[]>(
+          `meals/restaurant/${encodeURIComponent(selectedRestaurantId)}`,
+        );
+
+        if (active) {
+          const mappedMeals: MenuItem[] = response.data.map((meal) => ({
+            id: meal.id,
+            restaurantId: meal.restaurantId,
+            name: meal.name,
+            description: meal.description ?? '',
+            price: Number(meal.price),
+            imageUrl: meal.image ?? '',
+            category: meal.category?.name ?? 'Uncategorized',
+            isAvailable: meal.isAvailable,
+          }));
+
+          setMeals(mappedMeals);
+        }
+      } catch (err) {
+        if (active) {
+          setActionError(
+            err instanceof Error
+              ? err.message
+              : 'Unable to load restaurant meals.',
+          );
+        }
+      } finally {
+        if (active) {
+          setLoadingMeals(false);
+        }
+      }
+    }
+
+    loadMeals();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedRestaurantId]);
+
+  // Generate category filters from actual database meals.
+  const categories = useMemo(
+    () => [...new Set(meals.map((meal) => meal.category))],
+    [meals],
+  );
+
+  const filteredMeals = useMemo(() => {
+    return meals.filter((meal) => {
+      const matchesCategory =
+        selectedCategory === 'all' ||
+        meal.category === selectedCategory;
+
+      const matchesSearch = meal.name
+        .toLowerCase()
+        .includes(searchTerm.trim().toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [meals, selectedCategory, searchTerm]);
+
+  const hasActiveFilters =
+    searchTerm.trim() !== '' || selectedCategory !== 'all';
 
   function handleEdit(id: string) {
-    navigate(routes.ownerMenuEdit(id))
+    navigate(routes.ownerMenuEdit(id), {
+      state: { restaurantId: selectedRestaurantId },
+    });
   }
 
-  function handleDeleteRequest(id: string) {
-    setMealToDelete(ownerMeals.find((meal) => meal.id === id) ?? null)
-  }
+  async function handleToggleAvailability(id: string) {
+    const meal = meals.find((item) => item.id === id);
 
-  function handleDeleteConfirm() {
-    if (mealToDelete) {
-      setMeals(deleteMeal(mealToDelete.id))
+    if (!meal) return;
+
+    try {
+      setSaving(true);
+      setActionError('');
+
+      await apiClient.patch(`meals/${id}`, {
+        isAvailable: !meal.isAvailable,
+      });
+
+      setMeals((previous) =>
+        previous.map((item) =>
+          item.id === id
+            ? { ...item, isAvailable: !item.isAvailable }
+            : item,
+        ),
+      );
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to update meal availability.',
+      );
+    } finally {
+      setSaving(false);
     }
-    setMealToDelete(null)
+  }
+
+  async function handleDeleteConfirm() {
+    if (!mealToDelete) return;
+
+    try {
+      setSaving(true);
+      setActionError('');
+
+      await apiClient.delete(`meals/${mealToDelete.id}`);
+
+      setMeals((previous) =>
+        previous.filter((meal) => meal.id !== mealToDelete.id),
+      );
+
+      setMealToDelete(null);
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to delete this meal.',
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   function clearFilters() {
-    setSearchTerm('')
-    setSelectedCategory('all')
+    setSearchTerm('');
+    setSelectedCategory('all');
+  }
+
+  if (loadingRestaurants) {
+    return (
+      <section className="owner-page">
+        <div className="owner-empty">
+          Loading your restaurant information...
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="owner-page">
+        <div className="owner-empty">
+          <h2>Unable to load your dashboard</h2>
+          <p>{error}</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (restaurants.length === 0) {
+    return (
+      <section className="owner-page">
+        <div className="owner-empty">
+          <h2>No restaurant is linked to your account</h2>
+          <p>
+            Create a restaurant or contact the administrator
+            to associate your account with a restaurant.
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
     <section className="owner-page">
+
+      {/* Restaurant Information */}
       <div className="owner-restaurant-info">
         <div className="owner-restaurant-image">
-          {CURRENT_RESTAURANT.imageUrl ? (
+          {selectedRestaurant?.image ? (
             <img
-              src={CURRENT_RESTAURANT.imageUrl}
-              alt={`${CURRENT_RESTAURANT.name} restaurant`}
+              src={selectedRestaurant.image}
+              alt={selectedRestaurant.name}
             />
           ) : (
             <span>Restaurant photo</span>
           )}
         </div>
+
         <div>
-          <p className="eyebrow">Restaurant owner</p>
-          <h1 className="owner-restaurant-name">{CURRENT_RESTAURANT.name}</h1>
-          <p>{CURRENT_RESTAURANT.description}</p>
+          <p className="eyebrow">RESTAURANT OWNER</p>
+
+          <h1 className="owner-restaurant-name">
+            {selectedRestaurant?.name}
+          </h1>
+
+          <p>{selectedRestaurant?.description}</p>
+
+          <span>
+            Status: {selectedRestaurant?.status}
+          </span>
         </div>
       </div>
+
+      {/* Restaurant selector for owners with multiple restaurants */}
+      {restaurants.length > 1 && (
+        <div className="owner-toolbar">
+          <label htmlFor="owner-restaurant-select">
+            Select Restaurant
+          </label>
+
+          <select
+            id="owner-restaurant-select"
+            className="input"
+            value={selectedRestaurantId}
+            onChange={(event) => {
+              setSelectedRestaurantId(event.target.value);
+              setSelectedCategory('all');
+            }}
+          >
+            {restaurants.map((restaurant) => (
+              <option key={restaurant.id} value={restaurant.id}>
+                {restaurant.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Menu Heading */}
       <div className="owner-header">
         <h1 className="owner-title">Your menu</h1>
+
         <button
           className="button primary"
           type="button"
-          onClick={() => navigate(routes.ownerMenuNew)}
+          onClick={() =>
+            navigate(routes.ownerMenuNew, {
+              state: { restaurantId: selectedRestaurantId },
+            })
+          }
+          disabled={selectedRestaurant?.status !== 'ACTIVE'}
         >
           Add new meal
         </button>
       </div>
 
+      {selectedRestaurant?.status !== 'ACTIVE' && (
+        <p className="owner-empty">
+          This restaurant must be ACTIVE before adding meals.
+        </p>
+      )}
+
+      {/* Search and Filters */}
       <div className="owner-toolbar">
         <input
           className="input owner-search"
@@ -88,6 +369,7 @@ export default function OwnerHomePage() {
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
         />
+
         <select
           className="input"
           aria-label="Filter by category"
@@ -95,13 +377,15 @@ export default function OwnerHomePage() {
           onChange={(event) => setSelectedCategory(event.target.value)}
         >
           <option value="all">All categories</option>
-          {MENU_CATEGORIES.map((category) => (
+
+          {categories.map((category) => (
             <option key={category} value={category}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {category}
             </option>
           ))}
         </select>
-        {hasActiveFilters ? (
+
+        {hasActiveFilters && (
           <button
             className="button secondary"
             type="button"
@@ -109,16 +393,32 @@ export default function OwnerHomePage() {
           >
             Clear filters
           </button>
-        ) : null}
+        )}
       </div>
 
-      {ownerMeals.length === 0 ? (
+      {actionError && (
         <div className="owner-empty">
-          <p>You haven&apos;t added any meals yet.</p>
+          <p>{actionError}</p>
+        </div>
+      )}
+
+      {loadingMeals ? (
+        <div className="owner-empty">
+          Loading restaurant meals...
+        </div>
+      ) : meals.length === 0 ? (
+        <div className="owner-empty">
+          <p>You haven't added any meals yet.</p>
+
           <button
             className="button primary"
             type="button"
-            onClick={() => navigate(routes.ownerMenuNew)}
+            disabled={selectedRestaurant?.status !== 'ACTIVE'}
+            onClick={() =>
+              navigate(routes.ownerMenuNew, {
+                state: { restaurantId: selectedRestaurantId },
+              })
+            }
           >
             Add your first meal
           </button>
@@ -135,13 +435,18 @@ export default function OwnerHomePage() {
               menuItem={meal}
               onToggleAvailability={handleToggleAvailability}
               onEdit={handleEdit}
-              onDelete={handleDeleteRequest}
+              onDelete={(id) =>
+                setMealToDelete(
+                  meals.find((item) => item.id === id) ?? null,
+                )
+              }
             />
           ))}
         </div>
       )}
 
-      {mealToDelete ? (
+      {/* Delete Confirmation */}
+      {mealToDelete && (
         <div className="modal-backdrop">
           <div
             className="modal"
@@ -152,26 +457,33 @@ export default function OwnerHomePage() {
             <h2 id="delete-title" className="modal-title">
               Delete {mealToDelete.name}?
             </h2>
-            <p className="modal-text">This action cannot be undone.</p>
+
+            <p className="modal-text">
+              This action cannot be undone.
+            </p>
+
             <div className="modal-actions">
               <button
                 className="button secondary"
                 type="button"
+                disabled={saving}
                 onClick={() => setMealToDelete(null)}
               >
                 Cancel
               </button>
+
               <button
                 className="button danger"
                 type="button"
+                disabled={saving}
                 onClick={handleDeleteConfirm}
               >
-                Delete
+                {saving ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </section>
-  )
+  );
 }

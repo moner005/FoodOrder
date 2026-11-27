@@ -1,7 +1,42 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+build/
 coverage/
+.vite/
+
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
+*.local
+
+# Private keys and certificates
+*.pem
+*.key
+
+# Generated files
 *.tsbuildinfo
+server/src/generated/prisma/
+
+# Agent and editor tooling
+**/.agents/
+**/.claude/
+**/.windsurf/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local database backups
+*.dump
+*.backup
+*.bak
+*.sqlite
+*.sqlite3
+
+# Operating system files
+.DS_Store
+Thumbs.db

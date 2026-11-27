@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import "./home.css";
 
@@ -32,44 +32,7 @@ const features = [
   },
 ];
 
-const restaurants = [
-  {
-    name: "Burger House",
-    category: "Burgers • Fast Food",
-    rating: "4.9",
-    image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=700",
-  },
-  {
-    name: "Pizza Palace",
-    category: "Pizza • Italian",
-    rating: "4.8",
-    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=700",
-  },
-  {
-    name: "Fresh Garden",
-    category: "Healthy • Salads",
-    rating: "4.7",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=700",
-  },
-];
 
-const meals = [
-  {
-    name: "Classic Burger",
-    price: "$12.99",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700",
-  },
-  {
-    name: "Italian Pizza",
-    price: "$15.50",
-    image: "https://images.unsplash.com/photo-1579751626657-72bc17010498?w=700",
-  },
-  {
-    name: "Pasta Special",
-    price: "$13.00",
-    image: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=700",
-  },
-];
 
 function CustomerHome() {
   return (

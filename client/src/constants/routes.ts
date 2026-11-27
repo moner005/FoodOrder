@@ -13,4 +13,5 @@ export const routes = {
   profile: '/profile',
   contact: '/contact',
   dashboard: '/dashboard',
+  faqs: '/faqs',
 } as const

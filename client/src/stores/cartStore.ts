@@ -13,6 +13,7 @@ interface CartStore {
   decreaseQuantity: (mealId: string) => void;
   removeItem: (mealId: string) => void;
   clear: () => void;
+  matchesPersistedCart: (userId: string, expected: CartLine[]) => boolean;
   clearIfUnchanged: (userId: string, expected: CartLine[]) => boolean;
   reset: () => void;
 }
@@ -84,6 +85,17 @@ function saveCart(userId: string, items: CartLine[]) {
 export const useCartStore = create<CartStore>((set) => {
   let accountId = getCurrentUserId();
 
+  function matchesPersistedCart(userId: string, expected: CartLine[]): boolean {
+    if (accountId !== userId || getCurrentUserId() !== userId) return false;
+    const current = readCart(userId, true);
+    const signature = (items: CartLine[]) => JSON.stringify(items
+      .map(({ mealId, quantity, note }) => ({ mealId, quantity, note }))
+      .sort((a, b) => a.mealId.localeCompare(b.mealId)));
+    if (signature(current) === signature(expected)) return true;
+    set({ items: current });
+    return false;
+  }
+
   // Only an explicit sign-in changes the cart account used by this tab.
   function updateCart(change: (current: CartLine[]) => CartLine[]): boolean {
     const userId = accountId;
@@ -135,16 +147,9 @@ export const useCartStore = create<CartStore>((set) => {
     },
     clear: () => { updateCart(() => []); },
 
+    matchesPersistedCart,
     clearIfUnchanged: (userId, expected) => {
-      if (accountId !== userId || getCurrentUserId() !== userId) return false;
-      const current = readCart(userId, true);
-      const signature = (items: CartLine[]) => JSON.stringify(items
-        .map(({ mealId, quantity, note }) => ({ mealId, quantity, note }))
-        .sort((a, b) => a.mealId.localeCompare(b.mealId)));
-      if (signature(current) !== signature(expected)) {
-        set({ items: current });
-        return false;
-      }
+      if (!matchesPersistedCart(userId, expected)) return false;
       localStorage.removeItem(getCartKey(userId));
       set({ items: [] });
       return true;

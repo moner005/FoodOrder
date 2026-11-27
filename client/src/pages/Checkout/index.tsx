@@ -42,6 +42,7 @@ export default function CheckoutPage() {
   const user = useAuthStore((state) => state.user);
   const cartLines = useCartStore((state) => state.items);
   const loadCart = useCartStore((state) => state.load);
+  const matchesPersistedCart = useCartStore((state) => state.matchesPersistedCart);
   const clearIfUnchanged = useCartStore((state) => state.clearIfUnchanged);
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -135,6 +136,10 @@ export default function CheckoutPage() {
     if (!address || address.length > 300) { setFeedback("Enter a delivery address of up to 300 characters."); return; }
     if (notes.length > 120) { setFeedback("Delivery instructions must be 120 characters or fewer."); return; }
     try {
+      if (!matchesPersistedCart(user.id, cartLines)) {
+        setFeedback("Your saved cart or sign-in changed. Review the current cart before placing an order.");
+        return;
+      }
       const payloadBase = {
         deliveryAddress: address,
         ...(notes ? { notes } : {}),

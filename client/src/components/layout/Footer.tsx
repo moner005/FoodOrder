@@ -80,7 +80,7 @@ const Footer = () => {
             </li>
 
             <Link to={routes.faqs}>FAQs</Link>
-            {/* 
+            {/*
             <li>
               <a href="#support">Help & Support</a>
             </li> */}

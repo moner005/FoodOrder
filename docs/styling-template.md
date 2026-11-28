@@ -1,4 +1,4 @@
-# Styling Template 
+# Styling Template
 
 This document extracts the visual language of the authentication pages (`/login`, `/register`) into a reusable template so the rest of FoodOrder can share the same styling. It is a reference for the frontend owner (Member 5 coordinates shared-style edits) and for anyone building menu, cart, checkout or order screens.
 

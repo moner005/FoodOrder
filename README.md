@@ -69,6 +69,12 @@ To try a grouped checkout, add Margherita Pizza from Salford & Co and Wood-fired
 
 Stop the API and frontend with Ctrl+C. From the root, run `docker compose stop` to stop PostgreSQL while keeping the named volume. Start it again with `docker compose up -d --wait`.
 
+### Troubleshooting
+
+- **PostgreSQL connection fails.** Run `docker compose ps` from the project root and wait for PostgreSQL to report healthy. Check that `server/.env` uses the same port and password as the root `.env`. On first setup, run `npx prisma migrate deploy` from `server/` before starting the API.
+- **The site loads but the catalog fails.** Open the API health endpoint and confirm the API is running. Check `VITE_API_URL` in `client/.env.local` and set `CLIENT_ORIGIN` in `server/.env` to the exact URL in your browser. `localhost` and `127.0.0.1` are distinct origins. Restart the affected processes after changing their environment files.
+- **The catalog is empty or you need an administrator account.** Run the optional local data commands in the installation section, then sign in with the fixture account for the role you want to check.
+
 ## Build and verify
 
 From the root, run:

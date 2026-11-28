@@ -1,84 +1,25 @@
-# SwiftBite – Food Ordering Platform
+# SwiftBite
 
-A full-stack food ordering application that allows customers to explore restaurants, browse meals, manage shopping carts, place orders, and track their order status.
+SwiftBite is a restaurant marketplace with React, NestJS, Prisma, and PostgreSQL. Customers can place one checkout across several restaurants. Each restaurant manages its own menu and order status. Platform administrators manage accounts, assignments, approvals, and venue settings.
 
-Restaurant owners manage menus and orders. Platform administrators manage accounts, restaurant approvals, venue settings, menus, and orders.
+## Prerequisites
 
-## Tech Stack
+- Git, npm, and Node.js 22.22.3+ or 24.15.0+ on the corresponding LTS line
+- Docker Desktop or Docker Engine with the Compose plugin
+- Available loopback ports 4191 for the storefront, 3302 for the API, and 55434 for PostgreSQL
 
-### Frontend
-- React 19
-- TypeScript 6
-- Vite 8
-- React Router 7
-- Zustand 5
-- TanStack React Query 5
-- Axios
-- React Hot Toast
+## Install locally
 
-### Backend
-- NestJS 12
-- TypeScript
-- Prisma ORM 7
-- PostgreSQL
-- Passport JWT Authentication
-- bcrypt
-- class-validator
-- class-transformer
+Clone the repository and install both lockfiles from the project root.
 
-## Main Features
-
-- User registration and authentication
-- Role-based access: Customer, Restaurant Owner, Admin
-- Restaurant browsing
-- Meal and category management
-- Shopping cart with meals from multiple restaurants
-- Multi-restaurant checkout
-- Order creation and order history
-- Order status management
-- Customer profile management
-- Restaurant approval workflow
-- Role-based dashboards
-
-## Requirements
-
-Install the following before running the project:
-
-- Git
-- Node.js 22.22.3+ or 24.15.0+ on the supported LTS lines
-- npm
-- Docker Desktop or Docker Engine with Compose
-
-## Installation
-
-### 1. Clone the Repository
-
-Replace the repository URL with your GitHub repository URL.
-
-```bash
-git clone <YOUR_REPOSITORY_URL>
+```text
+git clone https://github.com/moner005/FoodOrder.git
 cd FoodOrder
+npm ci --prefix client
+npm ci --prefix server
 ```
 
-### 2. Install Frontend Dependencies
-
-```bash
-cd client
-npm ci
-```
-
-### 3. Install Backend Dependencies
-
-Open another terminal:
-
-```bash
-cd server
-npm ci
-```
-
-## Environment Configuration
-
-Copy the local environment examples from the project root.
+Copy the environment examples from the root. On macOS or Linux, use `cp` in place of `Copy-Item`.
 
 ```powershell
 Copy-Item .env.example .env
@@ -86,15 +27,15 @@ Copy-Item server/.env.example server/.env
 Copy-Item client/.env.example client/.env.local
 ```
 
-Set a local database password in the root `.env` and use the same password in
-`server/.env`'s `DATABASE_URL`. URL-encode the password in `DATABASE_URL`
-if it contains URL punctuation. Replace the JWT secret with a random value.
-The ignored environment files hold the local credentials.
+| File | Settings |
+| --- | --- |
+| `.env` | Set `FOODORDER_DB_PASSWORD` to a unique local password. Keep `FOODORDER_DB_PORT=55434` unless that port is occupied. |
+| `server/.env` | Replace the password in `DATABASE_URL` with the same database password. URL-encode it if it contains URL punctuation. Set `JWT_SECRET` to a unique random value. |
+| `client/.env.local` | Set `VITE_API_URL=http://127.0.0.1:3302/api` for the standard local setup. |
 
-## Database Setup
+Generate a signing secret with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Save it only in your ignored environment file or secret manager. If a port changes, update its corresponding URL and set `CLIENT_ORIGIN` to the exact storefront origin.
 
-Start PostgreSQL from the project root with Docker running. The Compose volume
-preserves the database across restarts. The default PostgreSQL port is `55434`.
+Start Docker, then run these commands from the project root.
 
 ```powershell
 docker compose up -d --wait
@@ -104,94 +45,47 @@ npx prisma migrate deploy
 npm run build
 ```
 
-To populate a new local browsing database, set `FOODORDER_PREVIEW_PASSWORD` in
-the terminal to a test password of at least 12 characters and run
-`node prisma/seed-preview.mjs` from `server/`. This adds the fictional
-customer, owner, and admin accounts `customer@example.test`, `owner@example.test`,
-and `admin@example.test` and a small restaurant catalog. The seed accepts only
-the dedicated loopback preview database and preserves existing preview edits on rerun.
+Optional local data includes five approved restaurants, a pending restaurant, and three accounts. From `server/`, set `FOODORDER_PREVIEW_PASSWORD` to a unique local password of at least 12 characters and run `node prisma/seed-preview.mjs`. In PowerShell use `$env:FOODORDER_PREVIEW_PASSWORD = '<your local password>'`. The same password works with `customer@example.test`, `owner@example.test`, and `admin@example.test`. The seed checks the dedicated loopback database and preserves existing records on rerun.
 
-## Running the Project
+To add six Lattakia, Syria listings, run `node --env-file=.env prisma/seed-lattakia.mjs` from `server/` after building the API. Search for `Lattakia` on the Restaurants page. The listings include public names and locations. Ordering is disabled until the restaurants have confirmed menus and delivery arrangements. See the [listing sources](docs/release-verification.md#lattakia-catalog).
 
-### Start the Backend
+## Run the site
 
-```bash
-cd server
+Run the API from `server/`.
+
+```text
 node --env-file=.env dist/main.js
 ```
 
-### Start the Frontend
+In a second terminal, run the frontend from `client/`.
 
-In another terminal:
-
-```bash
-cd client
+```text
 npm run dev -- --host 127.0.0.1 --port 4191 --strictPort
 ```
 
-The storefront is at [127.0.0.1:4191](http://127.0.0.1:4191/) and the API
-documentation is at [127.0.0.1:3302/api/docs](http://127.0.0.1:3302/api/docs).
+Open the [storefront](http://127.0.0.1:4191/), the [API health endpoint](http://127.0.0.1:3302/api/health), or the [local API documentation](http://127.0.0.1:3302/api/docs). Use **Admin** in the navigation after signing in as an administrator.
 
-With the preview fixtures, sign in as the customer and add Margherita Pizza
-from Salford & Co and Wood-fired Margherita from Al Forno. Choose Willow Quarter
-at checkout. The combined receipt totals $33.50 and includes a status for each
-restaurant's order. Sign in as the owner to access the assigned menu and order
-dashboard. Sign in as the admin and open **Admin** for accounts, restaurants,
-menu links, and orders. Cedar Kitchen is seeded as a pending restaurant for
-the approval workflow.
+To try a grouped checkout, add Margherita Pizza from Salford & Co and Wood-fired Margherita from Al Forno. Select Willow Quarter. The seeded catalog totals $33.50 including delivery fees, and the receipt shows an independent status for each restaurant.
 
-## Build and Validation
+Stop the API and frontend with Ctrl+C. From the root, run `docker compose stop` to stop PostgreSQL while keeping the named volume. Start it again with `docker compose up -d --wait`.
 
-Frontend:
+## Build and verify
 
-```bash
-cd client
-npm run build
-npm run lint
-```
-
-Backend:
-
-```bash
-cd server
-npm run build
-npm test
-```
-
-## Project Structure
+From the root, run:
 
 ```text
-FoodOrder/
-│
-├── client/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   ├── package-lock.json
-│   └── .env.example
-│
-├── server/
-│   ├── src/
-│   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── migrations/
-│   ├── prisma.config.ts
-│   ├── package.json
-│   ├── package-lock.json
-│   └── .env.example
-│
-├── .gitignore
-└── README.md
+npm run lint --prefix client
+npm run typecheck --prefix client
+npm run build --prefix client
+npm run build --prefix server
+npm test --prefix server
+npm run test:e2e --prefix server
 ```
 
-## Security
+Generate the Prisma client first and keep PostgreSQL running for the backend smoke test. See [release verification](docs/release-verification.md) for the browser matrix, isolated load check, and release requirements. See the [API contract](docs/api-contract.md) for routes and order behavior.
 
-- Environment files containing real credentials are excluded from Git.
-- Passwords are hashed before database storage.
-- Authentication uses JWT.
-- Protected operations require authentication and appropriate permissions.
-- Each developer must configure their own local environment variables.
+## Production configuration
 
-## License
+Build the frontend with `VITE_API_URL` set to the deployed HTTPS API URL, including `/api`. The static host needs a fallback to `index.html` for client routes. Run the compiled API with `NODE_ENV=production`, an explicit `CLIENT_ORIGIN`, and deployment-managed database and signing secrets. Choose the API bind address for your host. Swagger stays off in production unless `ENABLE_SWAGGER=true` is set.
 
-Add the appropriate project license here.
+Use a durable PostgreSQL instance with backups. Apply migrations once from a trusted release job before starting the new API. The local seed is for the isolated development database. A release smoke check should cover HTTPS, the API health endpoint, a database-backed catalog request, a direct restaurant URL, and an authorized sign-in and order workflow.

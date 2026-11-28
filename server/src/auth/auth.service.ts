@@ -25,6 +25,9 @@ export class AuthService {
   // Register
   // =========================
   async register(dto: RegisterDto) {
+    if (Buffer.byteLength(dto.password, 'utf8') > 72) {
+      throw new BadRequestException('Password must be 72 UTF-8 bytes or fewer');
+    }
     const email = dto.email.trim().toLowerCase();
 
     const existingUser = await this.prisma.user.findUnique({

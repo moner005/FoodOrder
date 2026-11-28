@@ -40,6 +40,13 @@ status and total and applied legacy restaurant settings without hiding the
 venue. After fixing missing NestJS test-module providers, the backend build,
 16 unit tests, and the existing end-to-end smoke test passed.
 
+On 28 November 2026, the integration reconciled GitHub `main` locally. The
+release candidate adds a cross-browser suite and an optional catalog import
+for six Lattakia restaurants. The local installation and release evidence are
+in the [README](../README.md) and [release verification](release-verification.md).
+Production deployment requires Cloudflare project access and a durable target
+database.
+
 The section below records the original course backlog and scaffold history.
 
 # Scaffold implementation status — 29 October 2026

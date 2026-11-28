@@ -6,6 +6,9 @@ dist/
 build/
 coverage/
 .vite/
+playwright-report/
+test-results/
+playwright/.cache/
 
 # Environment variables and secrets
 .env

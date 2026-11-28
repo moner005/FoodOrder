@@ -4,6 +4,11 @@
   "description": "",
   "author": "",
   "private": true,
+  "overrides": {
+    "@prisma/config": {
+      "effect": "3.22.5"
+    }
+  },
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {

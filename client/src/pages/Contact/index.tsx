@@ -1,107 +1,114 @@
+import { useState } from 'react'
+import type { FormEvent } from 'react'
+import styles from './Contact.module.css'
 
-import { Link } from 'react-router-dom';
-import './Contact.css';
+interface ContactValues {
+  name: string
+  email: string
+  subject: string
+  message: string
+}
+
+type ContactErrors = Partial<Record<keyof ContactValues, string>>
+
+const fields = [
+  { name: 'name', label: 'Name', type: 'text', autoComplete: 'name', maxLength: 100 },
+  { name: 'email', label: 'Email', type: 'email', autoComplete: 'email', maxLength: 254 },
+  { name: 'subject', label: 'Subject', type: 'text', autoComplete: 'off', maxLength: 150 },
+] as const
+
+function validate(values: ContactValues): ContactErrors {
+  const errors: ContactErrors = {}
+  if (!values.name.trim()) errors.name = 'Please enter your name.'
+  if (!values.email.trim()) errors.email = 'Please enter your email address.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
+    errors.email = 'Enter an email address such as name@example.com.'
+  }
+  if (!values.subject.trim()) errors.subject = 'Please enter a subject.'
+  if (!values.message.trim()) errors.message = 'Please write your message.'
+  return errors
+}
 
 export default function ContactPage() {
+  const [values, setValues] = useState<ContactValues>({ name: '', email: '', subject: '', message: '' })
+  const [errors, setErrors] = useState<ContactErrors>({})
+
+  function updateField(name: keyof ContactValues, value: string) {
+    setValues((previous) => ({ ...previous, [name]: value }))
+    setErrors((previous) => ({ ...previous, [name]: undefined }))
+  }
+
+  function validateField(name: keyof ContactValues) {
+    setErrors((previous) => ({ ...previous, [name]: validate(values)[name] }))
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    // Block implicit submission as well as the disabled button until a real
+    // service is integrated. Only confirmed delivery may clear the draft.
+    event.preventDefault()
+  }
+
   return (
-    <main className="contact-page">
-
-      <section className="contact-header">
-        <div className="contact-header-content">
-          <span>WE ARE HERE FOR YOU</span>
-          <h1>Get In Touch</h1>
-          <p>
-            We would love to hear from you.
-            Your feedback makes SwiftBite better.
-          </p>
+    <section className={styles.page} aria-labelledby="contact-title">
+      <div className={`hero ${styles.composition}`}>
+        <div className={`hero-copy ${styles.details}`}>
+          <p className="eyebrow">Contact FoodOrder</p>
+          <h1 id="contact-title">Let’s talk<br />food.</h1>
+          <p>A question, a suggestion, or something you’d like us to know? Good conversations start here.</p>
+          <div className={styles.signature} aria-hidden="true">
+            <span className="brand-mark">f</span>
+            <span>Good food, made nearby.</span>
+          </div>
         </div>
 
-        <div className="contact-header-icon">
-          💌
-        </div>
-      </section>
+        <section className={styles.formCard} aria-labelledby="contact-form-title">
+          <p className="eyebrow">Your message</p>
+          <h2 id="contact-form-title">What’s on your mind?</h2>
+          <p className={styles.description}>All fields are required.</p>
 
-      <section className="contact-main-card">
-
-        <div className="contact-intro">
-          <span className="contact-subtitle">
-            CONTACT SWIFTBITE
-          </span>
-
-          <h2>How can we help you?</h2>
-
-          <p>
-            Have a question about your order or one of our
-            restaurants? Explore your account or find your next
-            favorite meal.
-          </p>
-        </div>
-
-        <div className="contact-options">
-
-          <article className="contact-option">
-            <div className="contact-option-icon">
-              📦
+          <form className={styles.form} onSubmit={handleSubmit} noValidate>
+            {fields.map((field) => (
+              <div key={field.name} className={`${styles.field} ${field.name === 'subject' ? styles.fullWidth : ''}`}>
+                <label htmlFor={`contact-${field.name}`}>{field.label}</label>
+                <input
+                  id={`contact-${field.name}`}
+                  name={field.name}
+                  type={field.type}
+                  autoComplete={field.autoComplete}
+                  maxLength={field.maxLength}
+                  required
+                  value={values[field.name]}
+                  onChange={(event) => updateField(field.name, event.target.value)}
+                  onBlur={() => validateField(field.name)}
+                  aria-invalid={Boolean(errors[field.name])}
+                  aria-describedby={errors[field.name] ? `contact-${field.name}-error` : undefined}
+                />
+                {errors[field.name] && <p className={styles.error} id={`contact-${field.name}-error`} role="alert">{errors[field.name]}</p>}
+              </div>
+            ))}
+            <div className={`${styles.field} ${styles.fullWidth}`}>
+              <label htmlFor="contact-message">Message</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                rows={5}
+                maxLength={3000}
+                required
+                value={values.message}
+                onChange={(event) => updateField('message', event.target.value)}
+                onBlur={() => validateField('message')}
+                aria-invalid={Boolean(errors.message)}
+                aria-describedby={`contact-message-hint${errors.message ? ' contact-message-error' : ''}`}
+              />
+              <p id="contact-message-hint" className={styles.hint}>Up to 3,000 characters. Please don’t include payment details or sensitive information.</p>
+              {errors.message && <p className={styles.error} id="contact-message-error" role="alert">{errors.message}</p>}
             </div>
-
-            <h3>Order Support</h3>
-
-            <p>
-              Check your order history and follow
-              your delivery status.
-            </p>
-
-            <Link to="/orders">
-              View My Orders →
-            </Link>
-          </article>
-
-          <article className="contact-option">
-            <div className="contact-option-icon">
-              🍽️
+            <div className={`${styles.actions} ${styles.fullWidth}`}>
+              <button type="submit" className={`button primary ${styles.submitButton}`} disabled>Send message <span aria-hidden="true">→</span></button>
             </div>
-
-            <h3>Our Restaurants</h3>
-
-            <p>
-              Discover available restaurants and explore
-              their delicious menus.
-            </p>
-
-            <Link to="/restaurants">
-              Explore Restaurants →
-            </Link>
-          </article>
-
-          <article className="contact-option">
-            <div className="contact-option-icon">
-              👤
-            </div>
-
-            <h3>Your Account</h3>
-
-            <p>
-              Review your account information and
-              manage your profile.
-            </p>
-
-            <Link to="/profile">
-              Open My Profile →
-            </Link>
-          </article>
-
-        </div>
-
-        <div className="contact-footer-message">
-          <span>♥</span>
-          <p>
-            Thank you for choosing SwiftBite.
-            Good food, good mood!
-          </p>
-        </div>
-
-      </section>
-
-    </main>
-  );
+          </form>
+        </section>
+      </div>
+    </section>
+  )
 }

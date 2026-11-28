@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
 import ContactPage from "@/pages/Contact";
@@ -30,6 +30,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "restaurants", element: <RestaurantsPage /> },
+      { path: "restaurant", element: <Navigate to={routes.restaurants} replace /> },
       { path: "restaurants/:restaurantId/meals", element: <RestaurantMenuPage /> },
       { path: "meals", element: <MealsPage /> },
       { path: "meals/:id", element: <MealDetailsPage /> },

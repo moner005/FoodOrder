@@ -29,7 +29,17 @@ export default function RestaurantsPage() {
     {!loading && !error && filtered.length > 0 && <div className="sb-restaurant-grid">
       {filtered.map((restaurant) => <article className="sb-restaurant-card" key={restaurant.id}>
         <Link to={`/restaurants/${encodeURIComponent(restaurant.id)}/meals`} className="sb-card-image"><img src={restaurant.image || FALLBACK} alt="" onError={(event) => { event.currentTarget.src = FALLBACK; }} /></Link>
-        <div className="sb-card-body"><div className="sb-card-meta"><span>{restaurant.cuisine || "Local kitchen"}</span><span className={restaurant.isOpen ? "sb-open" : "sb-closed"}>{restaurant.isOpen ? "Open now" : "Closed"}</span></div><h2>{restaurant.name}</h2><p>{restaurant.description || restaurant.address || "Browse the menu and availability."}</p>{restaurant.address && <p className="sb-muted">{restaurant.address}</p>}<p className="sb-muted">Delivery {formatMinor(amountToMinor(restaurant.deliveryFee))} · Minimum {formatMinor(amountToMinor(restaurant.minimumSubtotal))}{restaurant.deliveryAreas.length ? ` · ${restaurant.deliveryAreas.join(", ")}` : " · Area not restricted"}</p><Link className="sb-button sb-primary" to={`/restaurants/${encodeURIComponent(restaurant.id)}/meals`}>View menu <span aria-hidden="true">→</span></Link></div>
+        <div className="sb-card-body">
+          <div className="sb-card-meta">
+            <span>{restaurant.cuisine || "Local kitchen"}</span>
+            <span className={restaurant.isOpen ? "sb-open" : "sb-closed"}>{restaurant.isOpen ? "Open now" : "Ordering unavailable"}</span>
+          </div>
+          <h2>{restaurant.name}</h2>
+          {restaurant.description && <p>{restaurant.description}</p>}
+          {restaurant.address && <p className="sb-muted">{restaurant.address}</p>}
+          {restaurant.isOpen && <p className="sb-muted">Delivery {formatMinor(amountToMinor(restaurant.deliveryFee))} · Minimum {formatMinor(amountToMinor(restaurant.minimumSubtotal))}{restaurant.deliveryAreas.length ? ` · ${restaurant.deliveryAreas.join(", ")}` : " · Area not restricted"}</p>}
+          <Link className="sb-button sb-primary" to={`/restaurants/${encodeURIComponent(restaurant.id)}/meals`}>View menu <span aria-hidden="true">→</span></Link>
+        </div>
       </article>)}
     </div>}
     {!loading && !error && filtered.length === 0 && <div className="sb-empty"><h2>{restaurants.length ? "No matches found" : "No restaurants are listed yet"}</h2><p>{restaurants.length ? "Try another restaurant name, cuisine, or area." : "Approved restaurants will appear here."}</p>{search && <button className="sb-button sb-secondary" onClick={() => setSearch("")}>Clear search</button>}</div>}

@@ -18,7 +18,10 @@ export default function HomePage() {
   const [error, setError] = useState("");
   useEffect(() => {
     let active = true;
-    getRestaurants().then((data) => active && setRestaurants(data.slice(0, 3)))
+    getRestaurants().then((data) => {
+      const open = data.filter((restaurant) => restaurant.isOpen);
+      if (active) setRestaurants((open.length ? open : data).slice(0, 3));
+    })
       .catch((reason: unknown) => active && setError(reason instanceof Error ? reason.message : "Restaurants are unavailable right now."));
     return () => { active = false; };
   }, []);
@@ -65,7 +68,7 @@ export default function HomePage() {
             {restaurants.map((restaurant) => (
               <Link className="sb-restaurant-card" to={`/restaurants/${encodeURIComponent(restaurant.id)}/meals`} key={restaurant.id}>
                 <img src={restaurant.image || FALLBACK} alt="" onError={(event) => { event.currentTarget.src = FALLBACK; }} />
-                <div className="sb-card-body"><div className="sb-card-meta"><span>{restaurant.cuisine || "Local kitchen"}</span><span className={restaurant.isOpen ? "sb-open" : "sb-closed"}>{restaurant.isOpen ? "Open now" : "Closed"}</span></div><h3>{restaurant.name}</h3><p>{restaurant.description || restaurant.address || "Explore the menu"}</p><span className="sb-text-link">View menu →</span></div>
+                <div className="sb-card-body"><div className="sb-card-meta"><span>{restaurant.cuisine || "Local kitchen"}</span><span className={restaurant.isOpen ? "sb-open" : "sb-closed"}>{restaurant.isOpen ? "Open now" : "Ordering unavailable"}</span></div><h3>{restaurant.name}</h3><p>{restaurant.description || restaurant.address || "Explore the menu"}</p><span className="sb-text-link">View menu →</span></div>
               </Link>
             ))}
           </div>
